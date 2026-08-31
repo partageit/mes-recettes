@@ -1,16 +1,84 @@
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap');
 
+/* Toutes les couleurs passent par ces tokens : le thème sombre ne fait que
+   redéfinir ce bloc. Une couleur écrite en dur ailleurs dans le fichier ne
+   basculerait pas. */
 :root{
+  color-scheme:light;
   --parchment:#FAF6EE;
   --card:#FFFDF8;
+  --field:#FFFFFF;      /* fond des petits contrôles (boutons ±, saisie de portions) */
   --ink:#2E2A22;
   --ink-soft:#6B6355;
+  --placeholder:#B7AF9C;
   --line:#E4DCC8;
   --basil:#3F6B5E;
   --basil-dark:#284F44;
+  --basil-bg:#EEF2E9;
   --rust:#A85A34;
   --rust-bg:#F3E3D6;
   --gold:#C98A2C;
+  --gold-bg:#F7EBD2;
+  --neutral-bg:#EDEAE2;
+  --time-bg:#EDF0F3;
+  --time-fg:#4A5568;
+  --review-bg:#FDECC8;
+  --review-fg:#8A6100;
+  --on-accent:#FFFFFF;  /* texte posé sur un aplat d'accent (basil, rust, gold) */
+  --shadow:rgba(46,42,34,.10);
+}
+
+/* Le sombre s'écrit une seule fois, dans @media, et le sélecteur d'attribut le
+   réutilise : sans choix explicite on suit le système, avec choix il gagne. */
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --parchment:#1A1712;
+    --card:#221F18;
+    --field:#2A261E;
+    --ink:#EFE9DC;
+    --ink-soft:#A79D8A;
+    --placeholder:#6E675A;
+    --line:#37322A;
+    --basil:#7FB09C;
+    --basil-dark:#A3CDB9;
+    --basil-bg:#23332C;
+    --rust:#E0906A;
+    --rust-bg:#40281C;
+    --gold:#DCA94A;
+    --gold-bg:#3A2D14;
+    --neutral-bg:#2E2A22;
+    --time-bg:#232C33;
+    --time-fg:#A8BCC9;
+    --review-bg:#3A2F13;
+    --review-fg:#E4BB57;
+    --on-accent:#16211D;
+    --shadow:rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --parchment:#1A1712;
+  --card:#221F18;
+  --field:#2A261E;
+  --ink:#EFE9DC;
+  --ink-soft:#A79D8A;
+  --placeholder:#6E675A;
+  --line:#37322A;
+  --basil:#7FB09C;
+  --basil-dark:#A3CDB9;
+  --basil-bg:#23332C;
+  --rust:#E0906A;
+  --rust-bg:#40281C;
+  --gold:#DCA94A;
+  --gold-bg:#3A2D14;
+  --neutral-bg:#2E2A22;
+  --time-bg:#232C33;
+  --time-fg:#A8BCC9;
+  --review-bg:#3A2F13;
+  --review-fg:#E4BB57;
+  --on-accent:#16211D;
+  --shadow:rgba(0,0,0,.45);
 }
 *{box-sizing:border-box;}
 body{margin:0;background:var(--parchment);color:var(--ink);font-family:'Inter',system-ui,sans-serif;}
@@ -25,10 +93,10 @@ a{color:inherit;text-decoration:none;}
 
 .filters{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:2px;}
 .chip{flex:none;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);border-radius:999px;padding:6px 13px;font-size:13px;cursor:pointer;white-space:nowrap;}
-.chip.active{background:var(--basil);border-color:var(--basil);color:#fff;}
+.chip.active{background:var(--basil);border-color:var(--basil);color:var(--on-accent);}
 
 .search{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);font-size:14px;margin-bottom:16px;font-family:inherit;color:var(--ink);}
-.search::placeholder{color:#B7AF9C;}
+.search::placeholder{color:var(--placeholder);}
 
 .empty{text-align:center;padding:50px 20px;color:var(--ink-soft);}
 .empty .disp{font-size:19px;color:var(--ink);margin-bottom:6px;}
@@ -41,14 +109,14 @@ a{color:inherit;text-decoration:none;}
 .rcard h3{margin:0;font-size:17px;font-weight:600;line-height:1.25;}
 .rcard .desc{font-size:13px;color:var(--ink-soft);margin:5px 0 8px;line-height:1.4;}
 .tags{display:flex;gap:6px;flex-wrap:wrap;}
-.tag{font-size:11px;padding:3px 9px;border-radius:999px;background:#EEF2E9;color:var(--basil-dark);font-weight:500;}
+.tag{font-size:11px;padding:3px 9px;border-radius:999px;background:var(--basil-bg);color:var(--basil-dark);font-weight:500;}
 .tag.rust{background:var(--rust-bg);color:var(--rust);}
-.tag.gold{background:#F7EBD2;color:var(--gold);}
+.tag.gold{background:var(--gold-bg);color:var(--gold);}
 .tag-favorite{background:var(--rust-bg);color:var(--rust);}
-.tag-classic{background:#F7EBD2;color:var(--gold);}
-.tag-untried{background:#EDEAE2;color:var(--ink-soft);}
-.tag.time{background:#EDF0F3;color:#4A5568;font-variant-numeric:tabular-nums;}
-.tag.new{background:var(--basil);color:#fff;font-weight:600;}
+.tag-classic{background:var(--gold-bg);color:var(--gold);}
+.tag-untried{background:var(--neutral-bg);color:var(--ink-soft);}
+.tag.time{background:var(--time-bg);color:var(--time-fg);font-variant-numeric:tabular-nums;}
+.tag.new{background:var(--basil);color:var(--on-accent);font-weight:600;}
 .mark{flex:none;font-size:15px;line-height:1;}
 .mark.favorite{color:var(--rust);}
 .mark.classic{color:var(--gold);}
@@ -56,12 +124,12 @@ a{color:inherit;text-decoration:none;}
 .chip.st-favorite.active{background:var(--rust);border-color:var(--rust);}
 .chip.st-classic.active{background:var(--gold);border-color:var(--gold);}
 .detail .tags{margin-bottom:14px;}
-.tag.review{background:#FDECC8;color:#8A6100;}
+.tag.review{background:var(--review-bg);color:var(--review-fg);}
 
 .detail h2{font-size:24px;margin:6px 0 4px;}
 .detail .desc{color:var(--ink-soft);font-size:14px;margin-bottom:14px;}
 .servingsbar{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-bottom:18px;max-width:220px;}
-.servingsbar button{width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:16px;cursor:pointer;}
+.servingsbar button{width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:var(--field);font-size:16px;cursor:pointer;}
 .servingsbar span{font-size:14px;font-weight:600;flex:1;text-align:center;}
 
 .section-label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);font-weight:600;margin:18px 0 8px;}
@@ -69,7 +137,7 @@ a{color:inherit;text-decoration:none;}
 .ing-row span:last-child{color:var(--ink-soft);font-variant-numeric:tabular-nums;}
 .steps{margin:0;padding:0;list-style:none;max-width:560px;}
 .steps li{padding:8px 8px 8px 38px;position:relative;font-size:14px;line-height:1.5;border-bottom:1px solid var(--line);}
-.step-mark{position:absolute;left:5px;top:6px;width:26px;height:26px;padding:0;border:1px solid var(--basil);border-radius:50%;background:var(--basil);color:#fff;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s;}
+.step-mark{position:absolute;left:5px;top:6px;width:26px;height:26px;padding:0;border:1px solid var(--basil);border-radius:50%;background:var(--basil);color:var(--on-accent);font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s;}
 .step-mark:hover{background:var(--basil-dark);border-color:var(--basil-dark);}
 
 .sourcelink{display:inline-block;margin-top:18px;font-size:13px;color:var(--basil-dark);}
@@ -79,7 +147,7 @@ a{color:inherit;text-decoration:none;}
 /* Temps de la recette */
 .timesbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
 .time-cell{display:flex;flex-direction:column;gap:2px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:7px 13px;min-width:78px;}
-.time-cell.total{border-color:var(--basil);background:#EEF2E9;}
+.time-cell.total{border-color:var(--basil);background:var(--basil-bg);}
 .time-label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft);font-weight:600;}
 .time-value{font-size:14px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;}
 
@@ -88,8 +156,8 @@ a{color:inherit;text-decoration:none;}
 .step-timer{display:inline-flex;align-items:center;gap:4px;margin-left:8px;vertical-align:middle;}
 .timer{border:1px solid var(--line);background:var(--card);color:var(--basil-dark);border-radius:999px;padding:3px 11px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;font-variant-numeric:tabular-nums;min-width:74px;}
 .timer:hover{border-color:var(--basil);}
-.timer.running{background:var(--basil);border-color:var(--basil);color:#fff;}
-.timer.paused{background:#EEF2E9;border-color:var(--basil);}
+.timer.running{background:var(--basil);border-color:var(--basil);color:var(--on-accent);}
+.timer.paused{background:var(--basil-bg);border-color:var(--basil);}
 .timer.done{background:var(--rust-bg);border-color:var(--rust);color:var(--rust);}
 .timer-reset{border:1px solid var(--line);background:var(--card);color:var(--ink-soft);border-radius:50%;width:24px;height:24px;padding:0;font-size:13px;line-height:1;cursor:pointer;font-family:inherit;}
 .timer-reset:hover{border-color:var(--rust);color:var(--rust);}
@@ -100,7 +168,7 @@ a{color:inherit;text-decoration:none;}
 .steps li.done{color:var(--ink-soft);}
 .steps li.done .step-mark{background:var(--card);color:var(--basil);}
 .steps li.done .step-mark:hover{background:var(--rust-bg);border-color:var(--rust);color:var(--rust);}
-.steps li.current{background:#EEF2E9;border-radius:8px;box-shadow:inset 3px 0 0 var(--basil);}
+.steps li.current{background:var(--basil-bg);border-radius:8px;box-shadow:inset 3px 0 0 var(--basil);}
 /* La progression tient sur la ligne du titre. min-height réserve la place du
    bouton : la liste ne descend pas quand la barre apparaît. La largeur suit
    celle de .steps pour que « Recommencer » s'aligne sur le bord de la liste. */
@@ -128,7 +196,7 @@ a{color:inherit;text-decoration:none;}
 .pick input[type=checkbox]{accent-color:var(--basil);width:16px;height:16px;flex:none;}
 .pick-title{flex:1;}
 .pick-yield{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-soft);flex:none;}
-.pick-n{width:52px;padding:3px 6px;border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:13px;text-align:right;background:#fff;color:var(--ink);}
+.pick-n{width:52px;padding:3px 6px;border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:13px;text-align:right;background:var(--field);color:var(--ink);}
 .pick-n:disabled{opacity:.45;}
 .toolbar{display:flex;gap:8px;margin-bottom:16px;}
 
@@ -136,18 +204,22 @@ a{color:inherit;text-decoration:none;}
 .toolbar{align-items:center;justify-content:space-between;}
 .sorter{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px;}
 .sort-btn{border:0;background:transparent;color:var(--ink-soft);border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;}
-.sort-btn.active{background:var(--basil);color:#fff;}
+.sort-btn.active{background:var(--basil);color:var(--on-accent);}
 .card-when{margin-top:8px;font-size:11px;color:var(--ink-soft);}
 
 /* Sélecteur de recettes de la liste de courses */
 .adder{position:relative;margin-bottom:12px;}
 .adder .search{margin-bottom:0;}
-.suggestions{position:absolute;z-index:5;left:0;right:0;top:calc(100% + 4px);background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:0 6px 18px rgba(46,42,34,.10);max-height:300px;overflow-y:auto;}
+.suggestions{position:absolute;z-index:5;left:0;right:0;top:calc(100% + 4px);background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:0 6px 18px var(--shadow);max-height:300px;overflow-y:auto;}
 .suggestion{display:flex;justify-content:space-between;align-items:baseline;gap:10px;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:transparent;padding:9px 13px;font-family:inherit;font-size:14px;color:var(--ink);cursor:pointer;}
 .suggestion:last-child{border-bottom:0;}
-.suggestion:hover{background:#EEF2E9;}
+.suggestion:hover{background:var(--basil-bg);}
 .suggestion-meta{font-size:11px;color:var(--ink-soft);flex:none;}
 .suggestion.empty-hint{color:var(--ink-soft);font-size:13px;cursor:default;}
 .suggestion.empty-hint:hover{background:transparent;}
 .pick-remove{border:1px solid var(--line);background:var(--card);color:var(--ink-soft);border-radius:50%;width:24px;height:24px;padding:0;font-size:15px;line-height:1;cursor:pointer;font-family:inherit;flex:none;}
 .pick-remove:hover{border-color:var(--rust);color:var(--rust);}
+
+/* Bascule clair / sombre */
+.theme-toggle{flex:none;width:34px;height:34px;padding:0;border:1px solid var(--line);border-radius:50%;background:var(--card);color:var(--ink-soft);font-family:inherit;font-size:15px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.theme-toggle:hover{border-color:var(--basil);color:var(--basil-dark);}
