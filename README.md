@@ -19,7 +19,13 @@ mes-recettes/
 │       └── <slug>.md      fiche complète d'une recette (Markdown + frontmatter)
 ├── _staging/              dépose ici les .md (ou .html) à traiter
 ├── .nojekyll              désactive Jekyll sur GitHub Pages (indispensable, voir plus bas)
-├── skill-recette-formatter.md   définition du skill claude.ai (copie de référence)
+├── CLAUDE.md              contexte projet chargé automatiquement par Claude Code
+├── .claude/
+│   ├── settings.json       permissions pré-autorisées (commandes du projet)
+│   └── skills/
+│       └── recipe-extractor/SKILL.md   skill d'import, s'exécute dans Claude Code
+├── claude-ai-skills/
+│   └── recette-formatter/SKILL.md      skill claude.ai (copie de référence, voir plus bas)
 ├── package.json
 └── scripts/
     ├── serve.js            serveur local de prévisualisation
@@ -210,9 +216,10 @@ s'en charge : dans la conversation où Claude vient d'écrire une recette, il la
 redonne à l'identique, enrichie des temps et des infos, directement au format
 attendu par `_staging/`.
 
-Sa définition est versionnée ici dans **`skill-recette-formatter.md`** — c'est la
-copie de référence. Après l'avoir modifiée, pense à la re-téléverser dans
-claude.ai, sinon le skill installé garde l'ancienne version.
+Sa définition est versionnée ici dans **`claude-ai-skills/recette-formatter/SKILL.md`**
+— c'est la copie de référence. Elle ne s'exécute pas dans ce dépôt : après l'avoir
+modifiée, pense à re-téléverser le dossier dans claude.ai, sinon le skill installé
+garde l'ancienne version.
 
 **Le cycle complet :**
 
@@ -281,8 +288,8 @@ Reprends la recette que tu viens de me donner et redonne-la moi à l'identique
 ajoutant les temps et les infos pratiques.
 
 Réponds UNIQUEMENT avec un bloc de code contenant du texte brut, sans rien
-avant ni après, au format INFOS / TEMPS / INGREDIENTS / STEPS / NOTES décrit
-dans skill-recette-formatter.md.
+avant ni après, au format INFOS / TEMPS / INGREDIENTS / STEPS / NOTES, en
+respectant les règles ci-dessous.
 
 Règles :
 - INFOS : uniquement les lignes « Personnes » et « Moule », et seulement si
@@ -495,3 +502,19 @@ La console du navigateur (F12 → Console) nomme le fichier qui manque.
 Ce dossier est pensé pour être ouvert tel quel dans Claude Code : demande-lui
 de traiter les fichiers de `_staging/`, de relire les recettes marquées
 `needs_review`, de remplir `main_ingredients`, ou de committer/pousser après ajout.
+
+Deux fichiers l'y aident, tous deux versionnés :
+
+- **`CLAUDE.md`** — chargé automatiquement à chaque session. Il ne redit pas ce
+  README : il rassemble ce qu'il faut savoir avant de toucher au dépôt (index
+  généré, `.nojekyll`, `created` immuable, un ingrédient par ligne) et ce qui ne
+  se devine jamais à ta place (`status`, nombre de personnes, temps de cuisson).
+- **`.claude/skills/recipe-extractor/SKILL.md`** — le skill d'import, déclenché
+  dès qu'il est question de `_staging/` ou d'ajouter une recette. Il déroule la
+  procédure : vérifier le nombre de personnes, demander le statut, lancer
+  l'extraction, relire la fiche avec toi.
+
+`.claude/settings.json` pré-autorise les commandes du projet (`npm run
+build-index`, les scripts de `scripts/`, `git status`/`diff`) pour éviter une
+demande de permission à chaque fois. Les réglages personnels vont dans
+`.claude/settings.local.json`, qui est gitignoré.

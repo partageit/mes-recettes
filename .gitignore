@@ -1,3 +1,4 @@
 node_modules
 _staging
 !_staging/.gitkeep
+.claude/settings.local.json

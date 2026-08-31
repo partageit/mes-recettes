@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run dev)",
+      "Bash(npm run build-index:*)",
+      "Bash(node scripts/build-index.js:*)",
+      "Bash(node scripts/extract-recipe.js:*)",
+      "Bash(node scripts/parse-staging-md.js:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)"
+    ]
+  }
+}
