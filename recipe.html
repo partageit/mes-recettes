@@ -35,8 +35,19 @@ const timers = {};
 let checkMode = false;
 let checked = new Set();
 
+// Étapes faites : cochées d'un clic sur leur pastille. Contrairement aux
+// ingrédients, l'état est éphémère — on refait la recette des semaines plus tard
+// et on ne veut pas la retrouver déjà cochée. Passé ce délai sans y toucher, on
+// repart de zéro.
+const STEPS_TTL = 6 * 3600 * 1000;
+let doneSteps = new Set();
+
 function storageKey(){
   return 'mes-recettes:check:' + (recipe ? recipe.id : '');
+}
+
+function stepsKey(){
+  return 'mes-recettes:steps:' + (recipe ? recipe.id : '');
 }
 
 function loadChecked(){
@@ -52,6 +63,26 @@ function saveChecked(){
   }catch(e){ /* navigation privée, quota : le mode reste utilisable sans mémoire */ }
 }
 
+function loadDoneSteps(){
+  doneSteps = new Set();
+  try{
+    const raw = localStorage.getItem(stepsKey());
+    if(!raw) return;
+    const saved = JSON.parse(raw);
+    if(Date.now() - (saved.at || 0) > STEPS_TTL){ localStorage.removeItem(stepsKey()); return; }
+    doneSteps = new Set(saved.steps || []);
+  }catch(e){ doneSteps = new Set(); }
+}
+
+// L'horodatage suit la dernière étape cochée : une recette avec deux heures de
+// repos au milieu ne doit pas se vider pendant qu'on attend.
+function saveDoneSteps(){
+  try{
+    if(!doneSteps.size) localStorage.removeItem(stepsKey());
+    else localStorage.setItem(stepsKey(), JSON.stringify({at: Date.now(), steps: [...doneSteps]}));
+  }catch(e){ /* navigation privée, quota : le suivi reste utilisable sans mémoire */ }
+}
+
 window.toggleCheckMode = function(){
   checkMode = !checkMode;
   render();
@@ -61,6 +92,12 @@ window.resetChecked = function(){
   checked.clear();
   saveChecked();
   render();
+};
+
+window.resetSteps = function(){
+  doneSteps.clear();
+  saveDoneSteps();
+  paintSteps();
 };
 
 async function load(){
@@ -74,6 +111,7 @@ async function load(){
     recipe = parseRecipeMarkdown(text);
     servings = parseFloat(recipe.servings) || 4;
     loadChecked();
+    loadDoneSteps();
     render();
   }catch(e){
     showError();
@@ -120,6 +158,54 @@ function checkBar(r){
     + `<button class="check-toggle" onclick="resetChecked()">Tout décocher</button>`
     + `<button class="check-toggle" onclick="toggleCheckMode()">Quitter</button>`
     + `</div>`;
+}
+
+// Barre des étapes : n'apparaît qu'une fois la première étape cochée, pour ne
+// pas encombrer une recette qu'on ne fait que lire.
+function stepBar(r){
+  const total = (r.steps || []).length;
+  const done = (r.steps || []).filter((s, i) => doneSteps.has(String(i))).length;
+  if(!done) return `<div class="stepbar"></div>`;
+  const label = done === total ? 'Recette terminée ✓' : `${done} / ${total} étapes`;
+  return `<div class="stepbar">`
+    + `<span class="step-count ${done === total ? 'ok' : ''}">${label}</span>`
+    + `<button class="check-toggle" onclick="resetSteps()">Recommencer</button>`
+    + `</div>`;
+}
+
+// L'étape courante est la première qui reste à faire : quand on relève les yeux
+// de la casserole, on retrouve où on en était.
+function currentStep(){
+  const total = (recipe.steps || []).length;
+  for(let i = 0; i < total; i++){
+    if(!doneSteps.has(String(i))) return i;
+  }
+  return -1;
+}
+
+// Repeint l'état des étapes sans re-rendre la page : un render() complet
+// couperait les minuteurs en cours.
+function paintSteps(){
+  const current = currentStep();
+  document.querySelectorAll('.steps li').forEach((li, i) => {
+    const done = doneSteps.has(String(i));
+    li.classList.toggle('done', done);
+    li.classList.toggle('current', i === current);
+    const mark = li.querySelector('.step-mark');
+    if(!mark) return;
+    mark.textContent = done ? '✓' : String(i + 1);
+    mark.setAttribute('aria-pressed', done ? 'true' : 'false');
+    mark.title = done ? 'Étape faite — cliquer pour la refaire' : 'Marquer cette étape comme faite';
+  });
+  const bar = document.querySelector('.stepbar');
+  if(bar) bar.outerHTML = stepBar(recipe);
+}
+
+function markStep(index, done){
+  const key = String(index);
+  if(done) doneSteps.add(key); else doneSteps.delete(key);
+  saveDoneSteps();
+  paintSteps();
 }
 
 function timesBar(r){
@@ -211,8 +297,7 @@ setInterval(() => {
     if(t.remaining <= 0){
       t.running = false;
       beep();
-      const li = document.querySelector(`.steps li:nth-child(${Number(index) + 1})`);
-      if(li) li.classList.add('step-done');
+      markStep(index, true);
     }
     paintTimer(index);
   });
@@ -231,17 +316,22 @@ document.getElementById('content').addEventListener('change', event => {
 });
 
 document.getElementById('content').addEventListener('click', event => {
+  const mark = event.target.closest('.step-mark');
+  if(mark){
+    const index = mark.dataset.step;
+    markStep(index, !doneSteps.has(String(index)));
+    return;
+  }
   const start = event.target.closest('.timer');
   if(start){
     const index = start.dataset.step;
     const step = recipe.steps[index];
     if(!timers[index] || timers[index].remaining <= 0){
       timers[index] = { remaining: step.minutes * 60, running: true };
+      markStep(index, false);
     } else {
       timers[index].running = !timers[index].running;
     }
-    const li = start.closest('li');
-    if(li) li.classList.remove('step-done');
     paintTimer(index);
     return;
   }
@@ -249,8 +339,7 @@ document.getElementById('content').addEventListener('click', event => {
   if(reset){
     const index = reset.dataset.reset;
     delete timers[index];
-    const li = reset.closest('li');
-    if(li) li.classList.remove('step-done');
+    markStep(index, false);
     paintTimer(index);
   }
 });
@@ -289,14 +378,16 @@ function render(){
         + `${optional?'<span class="opt">optionnel</span>':''}</span>`
         + `<span>${qty}</span></label>`;
     }).join('')}
-    <div class="section-label">Étapes</div>
+    <div class="section-label steps-head"><span>Étapes</span>${stepBar(r)}</div>
     <ol class="steps">${r.steps.map((s,i)=>
-      `<li>${escapeHtml(s.text)}${s.minutes?`<span class="step-timer">${timerButton(i, s.minutes)}</span>`:''}</li>`
+      `<li><button class="step-mark" type="button" data-step="${i}" aria-pressed="false"></button>`
+      + `${escapeHtml(s.text)}${s.minutes?`<span class="step-timer">${timerButton(i, s.minutes)}</span>`:''}</li>`
     ).join('')}</ol>
     ${r.notes?`<div class="section-label">Notes</div><div class="notes">${escapeHtml(r.notes)}</div>`:''}
     ${r.source_url?`<a class="sourcelink" href="${escapeHtml(r.source_url)}" target="_blank" rel="noopener">Source originale ↗</a>`:''}
     ${dateLine(r)}
   `;
+  paintSteps();
   paintAllTimers();
 }
 

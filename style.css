@@ -67,9 +67,10 @@ a{color:inherit;text-decoration:none;}
 .section-label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);font-weight:600;margin:18px 0 8px;}
 .ing-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px;max-width:480px;}
 .ing-row span:last-child{color:var(--ink-soft);font-variant-numeric:tabular-nums;}
-.steps{margin:0;padding:0;list-style:none;counter-reset:step;max-width:560px;}
-.steps li{counter-increment:step;padding:8px 0 8px 30px;position:relative;font-size:14px;line-height:1.5;border-bottom:1px solid var(--line);}
-.steps li::before{content:counter(step);position:absolute;left:0;top:8px;width:20px;height:20px;border-radius:50%;background:var(--basil);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;}
+.steps{margin:0;padding:0;list-style:none;max-width:560px;}
+.steps li{padding:8px 8px 8px 38px;position:relative;font-size:14px;line-height:1.5;border-bottom:1px solid var(--line);}
+.step-mark{position:absolute;left:5px;top:6px;width:26px;height:26px;padding:0;border:1px solid var(--basil);border-radius:50%;background:var(--basil);color:#fff;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s;}
+.step-mark:hover{background:var(--basil-dark);border-color:var(--basil-dark);}
 
 .sourcelink{display:inline-block;margin-top:18px;font-size:13px;color:var(--basil-dark);}
 .notes{font-size:14px;line-height:1.55;color:var(--ink-soft);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;max-width:560px;white-space:pre-wrap;}
@@ -92,7 +93,22 @@ a{color:inherit;text-decoration:none;}
 .timer.done{background:var(--rust-bg);border-color:var(--rust);color:var(--rust);}
 .timer-reset{border:1px solid var(--line);background:var(--card);color:var(--ink-soft);border-radius:50%;width:24px;height:24px;padding:0;font-size:13px;line-height:1;cursor:pointer;font-family:inherit;}
 .timer-reset:hover{border-color:var(--rust);color:var(--rust);}
-.steps li.step-done{background:var(--rust-bg);border-radius:8px;}
+
+/* Étapes faites */
+/* Le padding ne change pas d'un état à l'autre : le texte ne doit pas sauter
+   quand une étape est cochée. */
+.steps li.done{color:var(--ink-soft);}
+.steps li.done .step-mark{background:var(--card);color:var(--basil);}
+.steps li.done .step-mark:hover{background:var(--rust-bg);border-color:var(--rust);color:var(--rust);}
+.steps li.current{background:#EEF2E9;border-radius:8px;box-shadow:inset 3px 0 0 var(--basil);}
+/* La progression tient sur la ligne du titre. min-height réserve la place du
+   bouton : la liste ne descend pas quand la barre apparaît. La largeur suit
+   celle de .steps pour que « Recommencer » s'aligne sur le bord de la liste. */
+.steps-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;min-height:28px;max-width:560px;}
+.stepbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;text-transform:none;letter-spacing:0;}
+.stepbar:empty{display:none;}
+.step-count{font-size:13px;font-weight:600;color:var(--ink-soft);}
+.step-count.ok{color:var(--basil);}
 
 /* Vérification des ingrédients & liste de courses */
 .checkbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px;}
