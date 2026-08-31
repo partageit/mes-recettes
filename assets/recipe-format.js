@@ -6,6 +6,15 @@ export function slugify(text) {
   return ascii.replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-+|-+$/g, '').toLowerCase() || 'recette';
 }
 
+// Repli des accents pour la recherche : "crêpe" et "crepe" doivent se croiser.
+// NFD sépare la lettre de son signe diacritique, qu'on retire ensuite.
+export function foldAccents(text) {
+  return String(text == null ? '' : text)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}
+
 // Date locale au format YYYY-MM-DD (pas toISOString, qui bascule en UTC le soir).
 export function todayISO(d = new Date()) {
   const pad = n => String(n).padStart(2, '0');

@@ -22,7 +22,10 @@
     <span class="sorter" id="sorter"></span>
   </div>
 
-  <input class="search" id="search" placeholder="Chercher par titre ou ingrédient (ex. courgette)…">
+  <div class="search-wrap">
+    <input class="search" id="search" placeholder="Chercher par titre ou ingrédient (ex. courgette)…">
+    <button class="search-clear" id="search-clear" type="button" hidden aria-label="Vider la recherche">&times;</button>
+  </div>
 
   <div class="section-label" style="margin-top:0;">Ma sélection</div>
   <div class="filters" id="status-filters"></div>
@@ -31,7 +34,11 @@
   <div class="filters" id="cat-filters"></div>
 
   <div class="section-label">Ingrédient principal</div>
-  <div class="filters" id="ing-filters"></div>
+  <div class="search-wrap search-wrap-sm" id="ing-search-wrap" hidden>
+    <input class="search search-sm" id="ing-search" placeholder="Filtrer les ingrédients…">
+    <button class="search-clear" id="ing-search-clear" type="button" hidden aria-label="Vider le filtre">&times;</button>
+  </div>
+  <div class="filters wrapped" id="ing-filters"></div>
 
   <div id="listwrap">
     <div class="empty"><div class="disp">Chargement…</div></div>
@@ -39,11 +46,12 @@
 </div>
 
 <script type="module">
-import { formatYield, formatDuration, STATUS_META, relativeTime, isRecent } from './assets/recipe-format.js';
+import { formatYield, formatDuration, STATUS_META, relativeTime, isRecent, foldAccents } from './assets/recipe-format.js';
 
 let recipes = [];
 let category = 'all';
 let ingredient = 'all';
+let ingExpanded = false;
 let status = 'all';
 let sort = 'recent';
 
@@ -70,11 +78,17 @@ function categories(){
   recipes.forEach(r => (r.categories||[]).forEach(c => set.add(c)));
   return Array.from(set).sort((a,b)=>a.localeCompare(b,'fr'));
 }
+// Les ingrédients qui reviennent le plus sont ceux qu'on cherche le plus : ils
+// passent devant, et l'alphabétique ne départage que les ex aequo.
 function mainIngredients(){
-  const set = new Set();
-  recipes.forEach(r => (r.main_ingredients||[]).forEach(i => set.add(i)));
-  return Array.from(set).sort();
+  const counts = new Map();
+  recipes.forEach(r => (r.main_ingredients||[]).forEach(i => counts.set(i, (counts.get(i)||0) + 1)));
+  return Array.from(counts, ([name, count]) => ({ name, count }))
+    .sort((a,b) => b.count - a.count || a.name.localeCompare(b.name, 'fr', {sensitivity:'base'}));
 }
+
+// Nombre de chips visibles tant que la liste n'est pas dépliée.
+const ING_COLLAPSED = 12;
 
 function renderSorter(){
   const wrap = document.getElementById('sorter');
@@ -90,7 +104,8 @@ function renderSorter(){
 function renderFilters(){
   // status est une valeur unique : les chips s'excluent, comme les catégories.
   const statusWrap = document.getElementById('status-filters');
-  const choices = [['all','Toutes'], ['untried','○ jamais essayé'], ['favorite','★ à refaire'], ['classic','◆ classique']];
+  // Ordre décroissant d'estime : le répertoire d'abord, les inconnues en dernier.
+  const choices = [['all','Toutes'], ['classic','◆ classique'], ['favorite','★ à refaire'], ['untried','○ jamais essayé']];
   statusWrap.innerHTML = choices.map(([value,label])=>
     `<div class="chip st-${value} ${status===value?'active':''}" data-status="${value}">${label}</div>`
   ).join('');
@@ -110,30 +125,64 @@ function renderFilters(){
 
   const ingWrap = document.getElementById('ing-filters');
   const ings = mainIngredients();
+  const ingSearchWrap = document.getElementById('ing-search-wrap');
+  const ingSearch = document.getElementById('ing-search');
+  // Le champ ne sert à rien tant que tout tient sans repli.
+  ingSearchWrap.hidden = ings.length <= ING_COLLAPSED;
+  if(ingSearchWrap.hidden) ingSearch.value = '';
+  const ingQ = foldAccents(ingSearch.value).trim();
+  document.getElementById('ing-search-clear').hidden = ingSearch.value === '';
+
   if(!ings.length){
-    ingWrap.innerHTML = `<span style="font-size:13px;color:var(--ink-soft);">Ajoute main_ingredients dans tes fichiers recette pour filtrer ici.</span>`;
+    ingWrap.innerHTML = `<span class="filters-note">Ajoute main_ingredients dans tes fichiers recette pour filtrer ici.</span>`;
     return;
   }
+
+  const matching = ingQ ? ings.filter(i => foldAccents(i.name).includes(ingQ)) : ings;
+  // Une recherche en cours montre tout ce qui correspond : le repli ne s'applique
+  // qu'à la liste complète.
+  const collapsed = !ingQ && !ingExpanded && matching.length > ING_COLLAPSED;
+  let shown = collapsed ? matching.slice(0, ING_COLLAPSED) : matching;
+  // Le chip actif reste visible quoi qu'il arrive — replié hors des premiers, ou
+  // écarté par le filtre : sinon on ne verrait plus sur quoi la liste est filtrée.
+  if(ingredient !== 'all' && !shown.some(i => i.name === ingredient)){
+    const active = ings.find(i => i.name === ingredient);
+    if(active) shown = shown.concat(active);
+  }
+
   let ihtml = `<div class="chip ${ingredient==='all'?'active':''}" data-ing="all">Tous</div>`;
-  ings.forEach(i=>{
-    ihtml += `<div class="chip ${ingredient===i?'active':''}" data-ing="${escapeHtml(i)}">${escapeHtml(i)}</div>`;
+  shown.forEach(i=>{
+    const count = i.count > 1 ? `<span class="chip-count">${i.count}</span>` : '';
+    ihtml += `<div class="chip ${ingredient===i.name?'active':''}" data-ing="${escapeHtml(i.name)}">${escapeHtml(i.name)}${count}</div>`;
   });
+  if(collapsed){
+    ihtml += `<button class="chip more-btn" type="button" data-ing-more="1">▾ + ${matching.length - ING_COLLAPSED} autres</button>`;
+  }else if(!ingQ && ingExpanded && matching.length > ING_COLLAPSED){
+    ihtml += `<button class="chip more-btn" type="button" data-ing-more="1">▴ réduire</button>`;
+  }
+  if(ingQ && !matching.length){
+    ihtml += `<span class="filters-note">Aucun ingrédient ne correspond.</span>`;
+  }
   ingWrap.innerHTML = ihtml;
   ingWrap.querySelectorAll('[data-ing]').forEach(el=>{
     el.addEventListener('click', ()=>{ ingredient = el.dataset.ing; render(); });
   });
+  const moreBtn = ingWrap.querySelector('[data-ing-more]');
+  if(moreBtn) moreBtn.addEventListener('click', ()=>{ ingExpanded = !ingExpanded; render(); });
 }
 
 function render(){
   renderSorter();
   renderFilters();
-  const q = document.getElementById('search').value.toLowerCase().trim();
+  const raw = document.getElementById('search').value;
+  document.getElementById('search-clear').hidden = raw === '';
+  const q = foldAccents(raw).trim();
   let list = recipes.filter(r=>{
     if(status!=='all' && r.status!==status) return false;
     if(category!=='all' && !(r.categories||[]).includes(category)) return false;
     if(ingredient!=='all' && !(r.main_ingredients||[]).includes(ingredient)) return false;
     if(q){
-      const hay = (r.title+' '+(r.description||'')+' '+(r.main_ingredients||[]).join(' ')).toLowerCase();
+      const hay = foldAccents(r.title+' '+(r.description||'')+' '+(r.main_ingredients||[]).join(' '));
       if(!hay.includes(q)) return false;
     }
     return true;
@@ -170,7 +219,14 @@ function render(){
   `).join('') + '</div>';
 }
 
-document.getElementById('search').addEventListener('input', render);
+// Les deux champs se comportent pareil : saisie, croix, et Échap pour vider.
+[['search','search-clear'], ['ing-search','ing-search-clear']].forEach(([inputId, clearId])=>{
+  const input = document.getElementById(inputId);
+  const clear = ()=>{ input.value = ''; input.focus(); render(); };
+  input.addEventListener('input', render);
+  input.addEventListener('keydown', e=>{ if(e.key === 'Escape' && input.value){ e.preventDefault(); clear(); } });
+  document.getElementById(clearId).addEventListener('click', clear);
+});
 load();
 </script>
 </body>

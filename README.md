@@ -123,6 +123,11 @@ d'accueil — à remplir à la main (2-4 ingrédients qui définissent le plat, 
 liste complète). Un tableau vide est parfaitement valide : certaines recettes
 n'ont pas d'ingrédient qui les caractérise (une pâte à tarte, une béchamel).
 
+Le filtre range les ingrédients du plus fréquent au plus rare, avec le nombre de
+recettes quand il y en a plusieurs. Au-delà de douze, la liste est repliée
+derrière un « + N autres » et un champ de saisie apparaît pour la filtrer ;
+l'ingrédient sélectionné reste toujours visible, replié ou hors filtre.
+
 `servings` est obligatoire : c'est la base du calcul des quantités quand on
 change le nombre de portions sur la fiche.
 
