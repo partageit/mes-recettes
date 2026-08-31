@@ -22,6 +22,277 @@
     "updated": "2026-08-31T11:21"
   },
   {
+    "id": "cake-au-citron",
+    "title": "Cake au citron",
+    "description": "Un cake au citron moelleux, parfumé au zeste et au jus d'un citron entier.",
+    "categories": [
+      "Dessert"
+    ],
+    "servings": "8",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 10,
+    "cook_time": 40,
+    "rest_time": null,
+    "total_time": 50,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "citron"
+    ],
+    "created": "2026-08-31T11:33",
+    "updated": "2026-08-31T12:23"
+  },
+  {
+    "id": "cake-aux-amandes-et-a-la-mascarpone",
+    "title": "Cake aux amandes et à la mascarpone",
+    "description": "Un cake à la mascarpone et aux amandes, couvert d'amandes effilées et de sucre en gros cristaux qui caramélise.",
+    "categories": [
+      "Dessert"
+    ],
+    "servings": "4",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 15,
+    "cook_time": 45,
+    "rest_time": null,
+    "total_time": 60,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "amande",
+      "mascarpone"
+    ],
+    "created": "2026-08-31T11:33",
+    "updated": "2026-08-31T12:23"
+  },
+  {
+    "id": "caprice-des-dieux-pane",
+    "title": "Caprice des Dieux pané",
+    "description": "Un fromage entier pané et passé au four, croustillant dehors et coulant à la découpe.",
+    "categories": [
+      "Plat"
+    ],
+    "servings": "6",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 10,
+    "cook_time": 45,
+    "rest_time": null,
+    "total_time": 55,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "caprice des dieux",
+      "pomme de terre"
+    ],
+    "created": "2026-08-31T11:34",
+    "updated": "2026-08-31T12:23"
+  },
+  {
+    "id": "cheesecake-speculoos",
+    "title": "Cheesecake spéculoos",
+    "description": "Un cheesecake cuit au Philadelphia sur une base de spéculoos, nappé de pâte de spéculoos fondue.",
+    "categories": [
+      "Dessert"
+    ],
+    "servings": "10",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": null,
+    "cook_time": 82,
+    "rest_time": null,
+    "total_time": 82,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "spéculoos",
+      "Philadelphia"
+    ],
+    "created": "2026-08-31T11:36",
+    "updated": "2026-08-31T12:23"
+  },
+  {
+    "id": "cote-de-boeuf-barbecue-au-gros-sel",
+    "title": "Côte de boeuf barbecue au gros sel",
+    "description": "La côte de boeuf au barbecue, salée au gros sel avant cuisson puis badigeonnée d'huile d'olive et d'herbes.",
+    "categories": [
+      "Plat"
+    ],
+    "servings": "5",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 15,
+    "cook_time": 15,
+    "rest_time": null,
+    "total_time": 30,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "côte de boeuf"
+    ],
+    "created": "2026-08-31T11:33",
+    "updated": "2026-08-31T12:23"
+  },
+  {
+    "id": "crepes-d-hiver",
+    "title": "Crêpes d'hiver",
+    "description": "La pâte à crêpes de la maison, parfumée au rhum et au beurre fondu.",
+    "categories": [
+      "Petit-déjeuner",
+      "Goûter"
+    ],
+    "servings": "15",
+    "yield_label": "crêpe",
+    "mold": "",
+    "prep_time": 10,
+    "cook_time": 30,
+    "rest_time": null,
+    "total_time": 40,
+    "status": "classic",
+    "needs_review": false,
+    "main_ingredients": [
+      "farine",
+      "oeuf",
+      "lait"
+    ],
+    "created": "2026-08-31T11:34",
+    "updated": "2026-08-31T12:03"
+  },
+  {
+    "id": "croque-monsieur",
+    "title": "Croque-monsieur",
+    "description": "Les croque-monsieur au four, gratinés sous le grill avec un mélange de gruyère au lait et à la muscade.",
+    "categories": [
+      "Plat"
+    ],
+    "servings": "4",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 10,
+    "cook_time": 10,
+    "rest_time": null,
+    "total_time": 20,
+    "status": "classic",
+    "needs_review": false,
+    "main_ingredients": [
+      "pain de mie",
+      "jambon",
+      "gruyère"
+    ],
+    "created": "2026-08-31T11:33",
+    "updated": "2026-08-31T11:37"
+  },
+  {
+    "id": "gateau-fin-a-la-rhubarbe",
+    "title": "Gâteau fin à la rhubarbe",
+    "description": "Un gâteau fin cuit en moule à tarte, où la rhubarbe sucrée à l'avance fond dans la pâte.",
+    "categories": [
+      "Dessert"
+    ],
+    "servings": "8",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 10,
+    "cook_time": 30,
+    "rest_time": null,
+    "total_time": 40,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "rhubarbe"
+    ],
+    "created": "2026-08-31T11:33",
+    "updated": "2026-08-31T12:24"
+  },
+  {
+    "id": "gateau-fondant-aux-poires",
+    "title": "Gâteau fondant aux poires",
+    "description": "Un gâteau aux poires en deux couches de pâte, nappé en fin de cuisson d'un mélange beurre-oeuf-sucre qui le rend fondant.",
+    "categories": [
+      "Dessert"
+    ],
+    "servings": "6",
+    "yield_label": "",
+    "mold": "24 cm",
+    "prep_time": 15,
+    "cook_time": 50,
+    "rest_time": null,
+    "total_time": 65,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "poire"
+    ],
+    "created": "2026-08-31T11:33",
+    "updated": "2026-08-31T12:23"
+  },
+  {
+    "id": "gateau-fondant-mortel-au-chocolat-et-ses-8-oeufs",
+    "title": "Gâteau fondant mortel au chocolat et ses 8 oeufs",
+    "description": "Vous cherchez une recette pour écouler beaucoup d'œufs ? Vous êtes plus sucré que salé ? Vous avez trouvé ! Voici un gâteau ultra fondant avec 8 œufs. Un dessert rapide et onctueux dont on aurait tort de se passer !",
+    "categories": [
+      "Dessert"
+    ],
+    "servings": "8",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 10,
+    "cook_time": 25,
+    "rest_time": null,
+    "total_time": 35,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "chocolat",
+      "oeuf"
+    ],
+    "created": "2026-08-31T11:34",
+    "updated": "2026-08-31T12:23"
+  },
+  {
+    "id": "gateau-moelleux-au-citron-facile-et-intense",
+    "title": "Gâteau moelleux au citron facile et intense",
+    "description": "Un gâteau au citron d'un seul saladier, bien parfumé par le jus et le zeste de deux citrons.",
+    "categories": [
+      "Dessert"
+    ],
+    "servings": "6",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 20,
+    "cook_time": 25,
+    "rest_time": null,
+    "total_time": 45,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "citron"
+    ],
+    "created": "2026-08-31T11:33",
+    "updated": "2026-08-31T12:23"
+  },
+  {
+    "id": "pate-a-pizza-epaisse-et-moelleuse",
+    "title": "Pâte à pizza épaisse et moelleuse",
+    "description": "Une pâte à pizza levée une heure, épaisse et moelleuse, de quoi faire deux pizzas de la taille de la plaque du four.",
+    "categories": [
+      "Plat"
+    ],
+    "servings": "2",
+    "yield_label": "pizza",
+    "mold": "",
+    "prep_time": 20,
+    "cook_time": null,
+    "rest_time": 60,
+    "total_time": 80,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [],
+    "created": "2026-08-31T11:33",
+    "updated": "2026-08-31T12:23"
+  },
+  {
     "id": "pate-sablee-pour-tarte-sucree",
     "title": "Pâte sablée pour tarte sucrée",
     "description": "Une pâte sablée croustillante et fondante, idéale pour toutes vos tartes sucrées.",
@@ -40,6 +311,29 @@
     "main_ingredients": [],
     "created": "2026-08-30T00:00",
     "updated": "2026-08-30T15:22"
+  },
+  {
+    "id": "pop-corn-sucre-a-la-poele",
+    "title": "Pop-corn sucré à la poêle",
+    "description": "Le pop-corn sucré à la poêle, les grains éclatant directement dans un caramel d'eau, de sucre et d'huile.",
+    "categories": [
+      "Dessert",
+      "Apéro"
+    ],
+    "servings": "4",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 1,
+    "cook_time": 10,
+    "rest_time": null,
+    "total_time": 11,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "maïs à pop-corn"
+    ],
+    "created": "2026-08-31T11:33",
+    "updated": "2026-08-31T11:38"
   },
   {
     "id": "risotto-poulet-courgette",
@@ -65,6 +359,97 @@
     "updated": "2026-08-30T18:09"
   },
   {
+    "id": "rougail-saucisse",
+    "title": "Rougail saucisse",
+    "description": "Le plat réunionnais : des saucisses fumées mijotées dans une sauce tomate relevée au curcuma et au piment.",
+    "categories": [
+      "Plat"
+    ],
+    "servings": "4",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 20,
+    "cook_time": 20,
+    "rest_time": null,
+    "total_time": 40,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "saucisse fumée",
+      "tomate",
+      "oignon"
+    ],
+    "created": "2026-08-31T11:33",
+    "updated": "2026-08-31T12:23"
+  },
+  {
+    "id": "sauce-fromagere-pour-tacos",
+    "title": "Sauce fromagère pour tacos",
+    "description": "La sauce fromagère des French tacos, au cheddar et à l'emmental fondus dans la crème.",
+    "categories": [
+      "Sauce"
+    ],
+    "servings": "2",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 5,
+    "cook_time": 10,
+    "rest_time": null,
+    "total_time": 15,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "cheddar",
+      "emmental",
+      "crème"
+    ],
+    "created": "2026-08-31T11:33",
+    "updated": "2026-08-31T11:37"
+  },
+  {
+    "id": "tarte-a-gros-bords-nord-de-la-france",
+    "title": "Tarte à gros bords (nord de la France)",
+    "description": "La tarte du Nord à pâte levée et gros bords, garnie d'une crème pâtissière à la vanille.",
+    "categories": [
+      "Dessert"
+    ],
+    "servings": "6",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 40,
+    "cook_time": 45,
+    "rest_time": null,
+    "total_time": 85,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [],
+    "created": "2026-08-31T11:33",
+    "updated": "2026-08-31T12:23"
+  },
+  {
+    "id": "tarte-a-la-saucisse-de-francfort-et-aux-pommes-de-terre",
+    "title": "Tarte à la saucisse de Francfort et aux pommes de terre",
+    "description": "Une tarte aux saucisses de Francfort et aux pommes de terre, à la manière d'une quiche.",
+    "categories": [
+      "Plat"
+    ],
+    "servings": "4",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 15,
+    "cook_time": 35,
+    "rest_time": null,
+    "total_time": 50,
+    "status": "classic",
+    "needs_review": false,
+    "main_ingredients": [
+      "saucisse de Francfort",
+      "pomme de terre"
+    ],
+    "created": "2026-08-31T12:15",
+    "updated": "2026-08-31T12:15"
+  },
+  {
     "id": "tarte-aux-mirabelles",
     "title": "Tarte aux mirabelles",
     "description": "Une tarte simple et gourmande qui met en valeur la mirabelle bien mûre, avec un appareil crémeux à la crème et aux amandes.",
@@ -85,6 +470,28 @@
     ],
     "created": "2026-08-30T00:00",
     "updated": "2026-08-30T15:06"
+  },
+  {
+    "id": "tarte-aux-quetsches-d-alsace",
+    "title": "Tarte aux Quetsches d'Alsace",
+    "description": "La tarte alsacienne aux quetsches, dont le fond est saupoudré de semoule fine pour absorber le jus.",
+    "categories": [
+      "Dessert"
+    ],
+    "servings": "6",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 30,
+    "cook_time": 30,
+    "rest_time": null,
+    "total_time": 60,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "quetsche"
+    ],
+    "created": "2026-08-31T11:33",
+    "updated": "2026-08-31T12:23"
   },
   {
     "id": "tarte-salee-lardons-tomates-et-courgettes",
@@ -111,6 +518,30 @@
     "updated": "2026-08-30T15:23"
   },
   {
+    "id": "tartiflette",
+    "title": "Tartiflette",
+    "description": "La tartiflette savoyarde : pommes de terre rissolées aux lardons et aux oignons, gratinées sous un reblochon entier.",
+    "categories": [
+      "Plat"
+    ],
+    "servings": "4",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 15,
+    "cook_time": 60,
+    "rest_time": null,
+    "total_time": 75,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "reblochon",
+      "pomme de terre",
+      "lardons"
+    ],
+    "created": "2026-08-31T11:34",
+    "updated": "2026-08-31T12:23"
+  },
+  {
     "id": "tian-de-legumes-provencal",
     "title": "Tian de légumes provençal",
     "description": "Un gratin provençal coloré aux courgettes, tomates et carottes, parfumé aux herbes de Provence.",
@@ -133,5 +564,29 @@
     ],
     "created": "2026-08-30T00:00",
     "updated": "2026-08-30T19:25"
+  },
+  {
+    "id": "tiramisu-recette-originale",
+    "title": "Tiramisu (recette originale)",
+    "description": "Le tiramisu classique : biscuits à la cuillère imbibés de café, crème au mascarpone et cacao amer.",
+    "categories": [
+      "Dessert"
+    ],
+    "servings": "4",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 15,
+    "cook_time": null,
+    "rest_time": 240,
+    "total_time": 255,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "mascarpone",
+      "café",
+      "biscuits à la cuillère"
+    ],
+    "created": "2026-08-31T11:33",
+    "updated": "2026-08-31T12:23"
   }
 ]
