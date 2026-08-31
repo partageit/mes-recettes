@@ -27,18 +27,27 @@
     <button class="search-clear" id="search-clear" type="button" hidden aria-label="Vider la recherche">&times;</button>
   </div>
 
-  <div class="section-label" style="margin-top:0;">Ma sélection</div>
-  <div class="filters" id="status-filters"></div>
-
-  <div class="section-label">Catégorie</div>
-  <div class="filters" id="cat-filters"></div>
-
-  <div class="section-label">Ingrédient principal</div>
-  <div class="search-wrap search-wrap-sm" id="ing-search-wrap" hidden>
-    <input class="search search-sm" id="ing-search" placeholder="Filtrer les ingrédients…">
-    <button class="search-clear" id="ing-search-clear" type="button" hidden aria-label="Vider le filtre">&times;</button>
+  <div class="filterbar">
+    <div class="filter-menu" data-axis="status">
+      <button class="chip menu-btn" type="button" data-menu-btn aria-haspopup="true" aria-expanded="false"></button>
+      <div class="filter-pop" data-pop hidden><div data-options></div></div>
+    </div>
+    <div class="filter-menu" data-axis="category">
+      <button class="chip menu-btn" type="button" data-menu-btn aria-haspopup="true" aria-expanded="false"></button>
+      <div class="filter-pop" data-pop hidden><div data-options></div></div>
+    </div>
+    <div class="filter-menu" data-axis="ingredient">
+      <button class="chip menu-btn" type="button" data-menu-btn aria-haspopup="true" aria-expanded="false"></button>
+      <div class="filter-pop" data-pop hidden>
+        <div class="search-wrap pop-search">
+          <input class="search search-sm" id="ing-search" placeholder="Filtrer les ingrédients…">
+          <button class="search-clear" id="ing-search-clear" type="button" hidden aria-label="Vider le filtre">&times;</button>
+        </div>
+        <div data-options></div>
+      </div>
+    </div>
+    <button class="filter-reset" id="filter-reset" type="button" hidden>&times; effacer les filtres</button>
   </div>
-  <div class="filters wrapped" id="ing-filters"></div>
 
   <div id="listwrap">
     <div class="empty"><div class="disp">Chargement…</div></div>
@@ -49,11 +58,15 @@
 import { formatYield, formatDuration, STATUS_META, relativeTime, isRecent, foldAccents } from './assets/recipe-format.js';
 
 let recipes = [];
-let category = 'all';
-let ingredient = 'all';
-let ingExpanded = false;
-let status = 'all';
+let filters = { status: 'all', category: 'all', ingredient: 'all' };
+let openMenu = null;   // axe du menu déroulé, ou null
 let sort = 'recent';
+
+const AXES = {
+  status:     { label: 'Sélection',  all: 'Toutes' },
+  category:   { label: 'Catégorie',  all: 'Toutes' },
+  ingredient: { label: 'Ingrédient', all: 'Tous' },
+};
 
 function escapeHtml(s){
   const d = document.createElement('div');
@@ -78,17 +91,46 @@ function categories(){
   recipes.forEach(r => (r.categories||[]).forEach(c => set.add(c)));
   return Array.from(set).sort((a,b)=>a.localeCompare(b,'fr'));
 }
-// Les ingrédients qui reviennent le plus sont ceux qu'on cherche le plus : ils
-// passent devant, et l'alphabétique ne départage que les ex aequo.
 function mainIngredients(){
-  const counts = new Map();
-  recipes.forEach(r => (r.main_ingredients||[]).forEach(i => counts.set(i, (counts.get(i)||0) + 1)));
-  return Array.from(counts, ([name, count]) => ({ name, count }))
-    .sort((a,b) => b.count - a.count || a.name.localeCompare(b.name, 'fr', {sensitivity:'base'}));
+  const set = new Set();
+  recipes.forEach(r => (r.main_ingredients||[]).forEach(i => set.add(i)));
+  return Array.from(set).sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));
 }
 
-// Nombre de chips visibles tant que la liste n'est pas dépliée.
-const ING_COLLAPSED = 12;
+// Le seul endroit qui sait ce que veut dire « cette recette passe les filtres ».
+// Il prend un jeu de filtres en paramètre pour servir aussi au comptage, où l'on
+// neutralise un axe à la fois.
+function matchRecipe(r, f, q){
+  if(f.status !== 'all' && r.status !== f.status) return false;
+  if(f.category !== 'all' && !(r.categories||[]).includes(f.category)) return false;
+  if(f.ingredient !== 'all' && !(r.main_ingredients||[]).includes(f.ingredient)) return false;
+  if(q && !foldAccents(r.title+' '+(r.description||'')+' '+(r.main_ingredients||[]).join(' ')).includes(q)) return false;
+  return true;
+}
+
+// Ce que donnerait ce choix-ci, les autres filtres restant en place : c'est le
+// nombre affiché en face de chaque option, et 0 signale une impasse.
+function countFor(axis, value, q){
+  const f = Object.assign({}, filters, { [axis]: value });
+  return recipes.reduce((n, r) => n + (matchRecipe(r, f, q) ? 1 : 0), 0);
+}
+
+function axisOptions(axis, q){
+  const values = axis === 'status' ? ['classic', 'favorite', 'untried']
+    : axis === 'category' ? categories()
+    : mainIngredients();
+  const opts = values.map(value => ({
+    value,
+    label: axis === 'status' ? `${STATUS_META[value].icon} ${STATUS_META[value].label}` : value,
+    count: countFor(axis, value, q),
+  }));
+  // Les ingrédients se comptent par dizaines : les plus fournis passent devant.
+  // Les deux autres axes gardent leur ordre fixe, qui se lit d'un coup d'œil.
+  if(axis === 'ingredient'){
+    opts.sort((a,b) => b.count - a.count || a.value.localeCompare(b.value, 'fr', {sensitivity:'base'}));
+  }
+  return opts;
+}
 
 function renderSorter(){
   const wrap = document.getElementById('sorter');
@@ -101,99 +143,114 @@ function renderSorter(){
   });
 }
 
-function renderFilters(){
-  // status est une valeur unique : les chips s'excluent, comme les catégories.
-  const statusWrap = document.getElementById('status-filters');
-  // Ordre décroissant d'estime : le répertoire d'abord, les inconnues en dernier.
-  const choices = [['all','Toutes'], ['classic','◆ classique'], ['favorite','★ à refaire'], ['untried','○ jamais essayé']];
-  statusWrap.innerHTML = choices.map(([value,label])=>
-    `<div class="chip st-${value} ${status===value?'active':''}" data-status="${value}">${label}</div>`
-  ).join('');
-  statusWrap.querySelectorAll('[data-status]').forEach(el=>{
-    el.addEventListener('click', ()=>{ status = el.dataset.status; render(); });
+function renderFilters(q){
+  document.querySelectorAll('.filter-menu').forEach(menu=>{
+    const axis = menu.dataset.axis;
+    const value = filters[axis];
+    const btn = menu.querySelector('[data-menu-btn]');
+    const pop = menu.querySelector('[data-pop]');
+    const box = menu.querySelector('[data-options]');
+
+    // Le bouton porte la valeur choisie : l'état du filtre se lit sans déplier.
+    const active = value !== 'all';
+    const label = !active ? AXES[axis].label
+      : axis === 'status' ? `${STATUS_META[value].icon} ${STATUS_META[value].label}`
+      : value;
+    btn.className = `chip menu-btn${active ? ' active' : ''}${axis === 'status' && active ? ' st-'+value : ''}`;
+    btn.innerHTML = `<span class="menu-btn-label">${escapeHtml(label)}</span><span class="caret">▾</span>`;
+    btn.setAttribute('aria-expanded', String(openMenu === axis));
+    pop.hidden = openMenu !== axis;
+
+    let opts = axisOptions(axis, q);
+    let note = '';
+    if(axis === 'ingredient'){
+      const field = menu.querySelector('#ing-search');
+      const ingQ = foldAccents(field.value).trim();
+      menu.querySelector('#ing-search-clear').hidden = field.value === '';
+      if(!opts.length) note = 'Aucun ingrédient principal renseigné.';
+      else if(ingQ){
+        const kept = opts.filter(o => foldAccents(o.value).includes(ingQ));
+        if(!kept.length) note = 'Aucun ingrédient ne correspond.';
+        opts = kept;
+      }
+    }
+
+    // « Toutes » d'abord, toujours : c'est la sortie du filtre.
+    let html = `<button class="pop-opt${value === 'all' ? ' on' : ''}" type="button" data-value="all">`
+      + `<span class="tick">${value === 'all' ? '✓' : ''}</span>${AXES[axis].all}</button>`;
+    opts.forEach(o=>{
+      const on = o.value === value;
+      // Une option à zéro mène à une liste vide : elle reste lisible mais inerte.
+      html += `<button class="pop-opt${on ? ' on' : ''}" type="button" data-value="${escapeHtml(o.value)}"`
+        + `${o.count === 0 && !on ? ' disabled' : ''}>`
+        + `<span class="tick">${on ? '✓' : ''}</span>${escapeHtml(o.label)}`
+        + `<span class="pop-count">${o.count}</span></button>`;
+    });
+    if(note) html += `<div class="pop-note">${note}</div>`;
+    box.innerHTML = html;
+    box.querySelectorAll('[data-value]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        filters[axis] = el.dataset.value;
+        closeMenu();
+        render();
+      });
+    });
   });
 
-  const catWrap = document.getElementById('cat-filters');
-  let html = `<div class="chip ${category==='all'?'active':''}" data-cat="all">Toutes</div>`;
-  categories().forEach(c=>{
-    html += `<div class="chip ${category===c?'active':''}" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</div>`;
-  });
-  catWrap.innerHTML = html;
-  catWrap.querySelectorAll('[data-cat]').forEach(el=>{
-    el.addEventListener('click', ()=>{ category = el.dataset.cat; render(); });
-  });
+  const any = Object.values(filters).some(v => v !== 'all');
+  document.getElementById('filter-reset').hidden = !any;
+}
 
-  const ingWrap = document.getElementById('ing-filters');
-  const ings = mainIngredients();
-  const ingSearchWrap = document.getElementById('ing-search-wrap');
-  const ingSearch = document.getElementById('ing-search');
-  // Le champ ne sert à rien tant que tout tient sans repli.
-  ingSearchWrap.hidden = ings.length <= ING_COLLAPSED;
-  if(ingSearchWrap.hidden) ingSearch.value = '';
-  const ingQ = foldAccents(ingSearch.value).trim();
-  document.getElementById('ing-search-clear').hidden = ingSearch.value === '';
+function closeMenu(){
+  if(!openMenu) return;
+  const btn = document.querySelector(`.filter-menu[data-axis="${openMenu}"] [data-menu-btn]`);
+  openMenu = null;
+  document.querySelectorAll('[data-pop]').forEach(p=>{ p.hidden = true; });
+  document.querySelectorAll('[data-menu-btn]').forEach(b=>b.setAttribute('aria-expanded','false'));
+  if(btn) btn.focus();
+}
 
-  if(!ings.length){
-    ingWrap.innerHTML = `<span class="filters-note">Ajoute main_ingredients dans tes fichiers recette pour filtrer ici.</span>`;
-    return;
+function toggleMenu(axis){
+  const wasOpen = openMenu === axis;
+  openMenu = wasOpen ? null : axis;
+  render();
+  if(openMenu){
+    const menu = document.querySelector(`.filter-menu[data-axis="${axis}"]`);
+    placePop();
+    const field = menu.querySelector('#ing-search');
+    if(field && window.matchMedia('(pointer:fine)').matches) field.focus();
   }
+}
 
-  const matching = ingQ ? ings.filter(i => foldAccents(i.name).includes(ingQ)) : ings;
-  // Une recherche en cours montre tout ce qui correspond : le repli ne s'applique
-  // qu'à la liste complète.
-  const collapsed = !ingQ && !ingExpanded && matching.length > ING_COLLAPSED;
-  let shown = collapsed ? matching.slice(0, ING_COLLAPSED) : matching;
-  // Le chip actif reste visible quoi qu'il arrive — replié hors des premiers, ou
-  // écarté par le filtre : sinon on ne verrait plus sur quoi la liste est filtrée.
-  if(ingredient !== 'all' && !shown.some(i => i.name === ingredient)){
-    const active = ings.find(i => i.name === ingredient);
-    if(active) shown = shown.concat(active);
-  }
-
-  let ihtml = `<div class="chip ${ingredient==='all'?'active':''}" data-ing="all">Tous</div>`;
-  shown.forEach(i=>{
-    const count = i.count > 1 ? `<span class="chip-count">${i.count}</span>` : '';
-    ihtml += `<div class="chip ${ingredient===i.name?'active':''}" data-ing="${escapeHtml(i.name)}">${escapeHtml(i.name)}${count}</div>`;
-  });
-  if(collapsed){
-    ihtml += `<button class="chip more-btn" type="button" data-ing-more="1">▾ + ${matching.length - ING_COLLAPSED} autres</button>`;
-  }else if(!ingQ && ingExpanded && matching.length > ING_COLLAPSED){
-    ihtml += `<button class="chip more-btn" type="button" data-ing-more="1">▴ réduire</button>`;
-  }
-  if(ingQ && !matching.length){
-    ihtml += `<span class="filters-note">Aucun ingrédient ne correspond.</span>`;
-  }
-  ingWrap.innerHTML = ihtml;
-  ingWrap.querySelectorAll('[data-ing]').forEach(el=>{
-    el.addEventListener('click', ()=>{ ingredient = el.dataset.ing; render(); });
-  });
-  const moreBtn = ingWrap.querySelector('[data-ing-more]');
-  if(moreBtn) moreBtn.addEventListener('click', ()=>{ ingExpanded = !ingExpanded; render(); });
+// Un panneau ouvert près du bord droit sortirait de l'écran : on le rabat sur le
+// bouton. À refaire quand la fenêtre change de taille — dont l'ouverture du
+// clavier sur mobile, qui ne doit surtout pas refermer le menu.
+function placePop(){
+  if(!openMenu) return;
+  const pop = document.querySelector(`.filter-menu[data-axis="${openMenu}"] [data-pop]`);
+  pop.classList.remove('align-right');
+  if(pop.getBoundingClientRect().right > window.innerWidth - 8) pop.classList.add('align-right');
 }
 
 function render(){
-  renderSorter();
-  renderFilters();
   const raw = document.getElementById('search').value;
   document.getElementById('search-clear').hidden = raw === '';
   const q = foldAccents(raw).trim();
-  let list = recipes.filter(r=>{
-    if(status!=='all' && r.status!==status) return false;
-    if(category!=='all' && !(r.categories||[]).includes(category)) return false;
-    if(ingredient!=='all' && !(r.main_ingredients||[]).includes(ingredient)) return false;
-    if(q){
-      const hay = foldAccents(r.title+' '+(r.description||'')+' '+(r.main_ingredients||[]).join(' '));
-      if(!hay.includes(q)) return false;
-    }
-    return true;
-  });
+  renderSorter();
+  renderFilters(q);
+  let list = recipes.filter(r => matchRecipe(r, filters, q));
 
   // "Récentes" trie sur updated : c'est la dernière activité, ajout ou retouche.
   list = sort === 'recent'
     ? list.slice().sort((a,b)=>String(b.updated||'').localeCompare(String(a.updated||'')))
     : list.slice().sort((a,b)=>a.title.toLowerCase().localeCompare(b.title.toLowerCase(),'fr'));
 
-  document.getElementById('count').textContent = recipes.length + (recipes.length>1?' recettes gardées':' recette gardée');
+  const total = recipes.length;
+  const kept = list.length;
+  // Les filtres ne sont plus étalés sous les yeux : le compteur dit ce qu'ils coupent.
+  document.getElementById('count').textContent = kept === total
+    ? total + (total > 1 ? ' recettes gardées' : ' recette gardée')
+    : `${kept} sur ${total} ${total > 1 ? 'recettes' : 'recette'}`;
 
   const wrap = document.getElementById('listwrap');
   if(list.length===0){
@@ -224,9 +281,28 @@ function render(){
   const input = document.getElementById(inputId);
   const clear = ()=>{ input.value = ''; input.focus(); render(); };
   input.addEventListener('input', render);
-  input.addEventListener('keydown', e=>{ if(e.key === 'Escape' && input.value){ e.preventDefault(); clear(); } });
+  input.addEventListener('keydown', e=>{ if(e.key === 'Escape' && input.value){ e.preventDefault(); e.stopPropagation(); clear(); } });
   document.getElementById(clearId).addEventListener('click', clear);
 });
+
+document.querySelectorAll('[data-menu-btn]').forEach(btn=>{
+  btn.addEventListener('click', ()=> toggleMenu(btn.closest('.filter-menu').dataset.axis));
+});
+document.getElementById('filter-reset').addEventListener('click', ()=>{
+  filters = { status: 'all', category: 'all', ingredient: 'all' };
+  document.getElementById('ing-search').value = '';
+  closeMenu();
+  render();
+});
+// Un menu ouvert se referme au clic ailleurs ou sur Échap, comme tout menu.
+document.addEventListener('click', e=>{
+  if(openMenu && !e.target.closest(`.filter-menu[data-axis="${openMenu}"]`)) closeMenu();
+});
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape' && openMenu) closeMenu();
+});
+window.addEventListener('resize', placePop);
+
 load();
 </script>
 </body>

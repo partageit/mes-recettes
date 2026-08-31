@@ -82,7 +82,10 @@ Section facultative : variantes, conseils, remarques.
 
 ### Classement
 
-Deux axes indépendants, qui se cumulent dans les filtres :
+Deux axes indépendants, qui se cumulent dans les filtres. Sur l'accueil, ils
+tiennent avec l'ingrédient principal dans trois menus déroulants sous la barre de
+recherche — le bouton porte la valeur choisie, et chaque option annonce le nombre
+de recettes qu'elle laisserait, les autres filtres restant en place :
 
 **`categories`** — le ou les types de plat : Plat, Dessert, Entrée, Soupe,
 Sauce, Apéro, Petit-déjeuner, Goûter, Autre. `Sauce` couvre aussi les marinades,
@@ -123,10 +126,8 @@ d'accueil — à remplir à la main (2-4 ingrédients qui définissent le plat, 
 liste complète). Un tableau vide est parfaitement valide : certaines recettes
 n'ont pas d'ingrédient qui les caractérise (une pâte à tarte, une béchamel).
 
-Le filtre range les ingrédients du plus fréquent au plus rare, avec le nombre de
-recettes quand il y en a plusieurs. Au-delà de douze, la liste est repliée
-derrière un « + N autres » et un champ de saisie apparaît pour la filtrer ;
-l'ingrédient sélectionné reste toujours visible, replié ou hors filtre.
+Le menu range les ingrédients du plus fourni au plus rare et offre un champ de
+saisie pour retrouver le sien sans dérouler toute la liste.
 
 `servings` est obligatoire : c'est la base du calcul des quantités quand on
 change le nombre de portions sur la fiche.
