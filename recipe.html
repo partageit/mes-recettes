@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recette</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <a class="backlink" href="index.html">← toutes les recettes</a>
+  <div id="content" class="detail" style="margin-top:14px;">
+    <div class="empty"><div class="disp">Chargement…</div></div>
+  </div>
+</div>
+
+<script type="module">
+import { parseRecipeMarkdown, formatYield, formatDuration, STATUS_META, ingredientLabel, isOptionalIngredient } from './assets/recipe-format.js';
+
+function escapeHtml(s){
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+let recipe = null;
+let servings = null;
+
+// État des minuteurs, indexé par numéro d'étape. Conservé hors du DOM pour
+// survivre aux re-rendus déclenchés par le changement de portions.
+const timers = {};
+
+// Mode vérification : on coche ce qu'on a sous la main pour voir ce qui manque.
+// L'état survit à un aller-retour sur le site, mais reste local au navigateur.
+let checkMode = false;
+let checked = new Set();
+
+function storageKey(){
+  return 'mes-recettes:check:' + (recipe ? recipe.id : '');
+}
+
+function loadChecked(){
+  try{
+    const raw = localStorage.getItem(storageKey());
+    checked = new Set(raw ? JSON.parse(raw) : []);
+  }catch(e){ checked = new Set(); }
+}
+
+function saveChecked(){
+  try{
+    localStorage.setItem(storageKey(), JSON.stringify([...checked]));
+  }catch(e){ /* navigation privée, quota : le mode reste utilisable sans mémoire */ }
+}
+
+window.toggleCheckMode = function(){
+  checkMode = !checkMode;
+  render();
+};
+
+window.resetChecked = function(){
+  checked.clear();
+  saveChecked();
+  render();
+};
+
+async function load(){
+  const params = new URLSearchParams(location.search);
+  const id = params.get('id');
+  if(!id){ showError(); return; }
+  try{
+    const res = await fetch('data/recipes/' + id + '.md');
+    if(!res.ok) throw new Error('not found');
+    const text = await res.text();
+    recipe = parseRecipeMarkdown(text);
+    servings = parseFloat(recipe.servings) || 4;
+    loadChecked();
+    render();
+  }catch(e){
+    showError();
+  }
+}
+
+function showError(){
+  document.getElementById('content').innerHTML = `<div class="empty"><div class="disp">Recette introuvable</div><p>Elle a peut-être été renommée ou supprimée.</p></div>`;
+}
+
+window.changeServings = function(delta){
+  servings = Math.max(1, servings + delta);
+  render();
+};
+
+function formatDate(iso){
+  if(!iso) return '';
+  const d = new Date(iso + 'T00:00:00');
+  if(isNaN(d)) return iso;
+  return d.toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'});
+}
+
+// « Modifiée le » n'a d'intérêt que si la recette a bougé depuis sa création.
+function dateLine(r){
+  const parts = [];
+  if(r.created) parts.push('Ajoutée le ' + formatDate(r.created));
+  if(r.updated && r.updated !== r.created) parts.push('modifiée le ' + formatDate(r.updated));
+  if(!parts.length) return '';
+  return `<div class="dates">${escapeHtml(parts.join(', '))}</div>`;
+}
+
+// Barre du mode vérification : bouton d'entrée, puis décompte de ce qui manque.
+function checkBar(r){
+  const total = r.ingredients.length;
+  if(!checkMode){
+    return `<div class="checkbar"><button class="check-toggle" onclick="toggleCheckMode()">Vérifier les ingrédients</button></div>`;
+  }
+  const missing = r.ingredients.filter((ing,i)=>!checked.has(String(i)) && !isOptionalIngredient(ing.name)).length;
+  const label = missing === 0
+    ? 'Tu as tout ✓'
+    : `${missing} à vérifier sur ${total}`;
+  return `<div class="checkbar">`
+    + `<span class="check-count ${missing===0?'ok':''}">${label}</span>`
+    + `<button class="check-toggle" onclick="resetChecked()">Tout décocher</button>`
+    + `<button class="check-toggle" onclick="toggleCheckMode()">Quitter</button>`
+    + `</div>`;
+}
+
+function timesBar(r){
+  const parts = [
+    ['Préparation', r.prep_time],
+    ['Cuisson', r.cook_time],
+    ['Repos', r.rest_time],
+  ].filter(([, v]) => v);
+
+  const cells = parts.map(([label, v]) =>
+    `<div class="time-cell"><span class="time-label">${label}</span><span class="time-value">${escapeHtml(formatDuration(v))}</span></div>`
+  );
+  // Un seul temps se suffit à lui-même : pas de total qui le répète.
+  if(parts.length > 1){
+    const total = parts.reduce((sum, [, v]) => sum + v, 0);
+    cells.push(`<div class="time-cell total"><span class="time-label">Total</span><span class="time-value">${escapeHtml(formatDuration(total))}</span></div>`);
+  }
+  if(r.mold){
+    cells.push(`<div class="time-cell"><span class="time-label">Moule</span><span class="time-value">${escapeHtml(r.mold)}</span></div>`);
+  }
+  if(!cells.length) return '';
+  return `<div class="timesbar">${cells.join('')}</div>`;
+}
+
+// --- Minuteurs ---
+
+function clock(seconds){
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+function timerButton(index, minutes){
+  return `<button class="timer" data-step="${index}" type="button"></button>`
+    + `<button class="timer-reset" data-reset="${index}" type="button" title="Réinitialiser">↺</button>`;
+}
+
+function paintTimer(index){
+  const btn = document.querySelector(`.timer[data-step="${index}"]`);
+  if(!btn) return;
+  const step = recipe.steps[index];
+  const t = timers[index];
+  const reset = document.querySelector(`.timer-reset[data-reset="${index}"]`);
+
+  if(!t){
+    btn.textContent = `▶ ${formatDuration(step.minutes)}`;
+    btn.className = 'timer';
+    if(reset) reset.hidden = true;
+    return;
+  }
+  if(reset) reset.hidden = false;
+  if(t.remaining <= 0){
+    btn.textContent = '✓ terminé';
+    btn.className = 'timer done';
+    return;
+  }
+  btn.textContent = `${t.running ? '⏸' : '▶'} ${clock(t.remaining)}`;
+  btn.className = 'timer ' + (t.running ? 'running' : 'paused');
+}
+
+function paintAllTimers(){
+  (recipe.steps || []).forEach((step, i) => { if(step.minutes) paintTimer(i); });
+}
+
+let audio = null;
+function beep(){
+  try{
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    const now = audio.currentTime;
+    [0, 0.45].forEach(offset => {
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.0001, now + offset);
+      gain.gain.exponentialRampToValueAtTime(0.2, now + offset + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + 0.35);
+      osc.connect(gain).connect(audio.destination);
+      osc.start(now + offset);
+      osc.stop(now + offset + 0.4);
+    });
+  }catch(e){ /* pas de son disponible : l'affichage suffit */ }
+}
+
+setInterval(() => {
+  Object.keys(timers).forEach(index => {
+    const t = timers[index];
+    if(!t.running || t.remaining <= 0) return;
+    t.remaining -= 1;
+    if(t.remaining <= 0){
+      t.running = false;
+      beep();
+      const li = document.querySelector(`.steps li:nth-child(${Number(index) + 1})`);
+      if(li) li.classList.add('step-done');
+    }
+    paintTimer(index);
+  });
+}, 1000);
+
+document.getElementById('content').addEventListener('change', event => {
+  const box = event.target.closest('input[data-ing]');
+  if(!box) return;
+  const key = box.dataset.ing;
+  if(box.checked) checked.add(key); else checked.delete(key);
+  saveChecked();
+  box.closest('.ing-row').classList.toggle('has', box.checked);
+  // Seul le décompte bouge : un re-rendu complet couperait les minuteurs en cours.
+  const bar = document.querySelector('.checkbar');
+  if(bar) bar.outerHTML = checkBar(recipe);
+});
+
+document.getElementById('content').addEventListener('click', event => {
+  const start = event.target.closest('.timer');
+  if(start){
+    const index = start.dataset.step;
+    const step = recipe.steps[index];
+    if(!timers[index] || timers[index].remaining <= 0){
+      timers[index] = { remaining: step.minutes * 60, running: true };
+    } else {
+      timers[index].running = !timers[index].running;
+    }
+    const li = start.closest('li');
+    if(li) li.classList.remove('step-done');
+    paintTimer(index);
+    return;
+  }
+  const reset = event.target.closest('.timer-reset');
+  if(reset){
+    const index = reset.dataset.reset;
+    delete timers[index];
+    const li = reset.closest('li');
+    if(li) li.classList.remove('step-done');
+    paintTimer(index);
+  }
+});
+
+function render(){
+  const r = recipe;
+  const st = STATUS_META[r.status] || STATUS_META.none;
+  const base = parseFloat(r.servings) || 4;
+  const factor = servings / base;
+  document.getElementById('content').innerHTML = `
+    <h2>${escapeHtml(r.title)} <span class="mark ${escapeHtml(r.status)}">${st.icon}</span></h2>
+    ${r.description?`<div class="desc">${escapeHtml(r.description)}</div>`:''}
+    <div class="tags">
+      ${r.categories.map(c=>`<span class="tag">${escapeHtml(c)}</span>`).join('')}
+      ${st.label?`<span class="tag tag-${escapeHtml(r.status)}">${st.label}</span>`:''}
+    </div>
+    ${timesBar(r)}
+    <div class="servingsbar">
+      <button onclick="changeServings(-1)">−</button>
+      <span>${escapeHtml(formatYield(Math.round(servings), r.yield_label))}</span>
+      <button onclick="changeServings(1)">+</button>
+    </div>
+    <div class="section-label">Ingrédients</div>
+    ${checkBar(r)}
+    ${r.ingredients.map((ing,i)=>{
+      const amt = ing.amount ? (Math.round(ing.amount*factor*100)/100) : '';
+      const qty = `${amt}${ing.unit?(' '+escapeHtml(ing.unit)):''}`;
+      const optional = isOptionalIngredient(ing.name);
+      if(!checkMode){
+        return `<div class="ing-row"><span>${escapeHtml(ing.name)}</span><span>${qty}</span></div>`;
+      }
+      const has = checked.has(String(i));
+      return `<label class="ing-row check ${has?'has':''}">`
+        + `<input type="checkbox" data-ing="${i}" ${has?'checked':''}>`
+        + `<span class="ing-name">${escapeHtml(ingredientLabel(ing.name))}`
+        + `${optional?'<span class="opt">optionnel</span>':''}</span>`
+        + `<span>${qty}</span></label>`;
+    }).join('')}
+    <div class="section-label">Étapes</div>
+    <ol class="steps">${r.steps.map((s,i)=>
+      `<li>${escapeHtml(s.text)}${s.minutes?`<span class="step-timer">${timerButton(i, s.minutes)}</span>`:''}</li>`
+    ).join('')}</ol>
+    ${r.notes?`<div class="section-label">Notes</div><div class="notes">${escapeHtml(r.notes)}</div>`:''}
+    ${r.source_url?`<a class="sourcelink" href="${escapeHtml(r.source_url)}" target="_blank" rel="noopener">Source originale ↗</a>`:''}
+    ${dateLine(r)}
+  `;
+  paintAllTimers();
+}
+
+load();
+</script>
+</body>
+</html>

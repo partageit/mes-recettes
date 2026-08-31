@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ma boîte à recettes</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>Ma boîte à recettes</h1>
+      <p id="count">Chargement…</p>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <a class="check-toggle" href="courses.html">🛒 Liste de courses</a>
+    <span class="sorter" id="sorter"></span>
+  </div>
+
+  <input class="search" id="search" placeholder="Chercher par titre ou ingrédient (ex. courgette)…">
+
+  <div class="section-label" style="margin-top:0;">Ma sélection</div>
+  <div class="filters" id="status-filters"></div>
+
+  <div class="section-label">Catégorie</div>
+  <div class="filters" id="cat-filters"></div>
+
+  <div class="section-label">Ingrédient principal</div>
+  <div class="filters" id="ing-filters"></div>
+
+  <div id="listwrap">
+    <div class="empty"><div class="disp">Chargement…</div></div>
+  </div>
+</div>
+
+<script type="module">
+import { formatYield, formatDuration, STATUS_META, relativeTime, isRecent } from './assets/recipe-format.js';
+
+let recipes = [];
+let category = 'all';
+let ingredient = 'all';
+let status = 'all';
+let sort = 'recent';
+
+function escapeHtml(s){
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+async function load(){
+  try{
+    const res = await fetch('data/index.json');
+    recipes = await res.json();
+  }catch(e){
+    recipes = [];
+  }
+  render();
+}
+
+// Une recette peut relever de plusieurs catégories : on aplatit pour la liste
+// des filtres, et une même recette apparaît sous chacune d'elles.
+function categories(){
+  const set = new Set();
+  recipes.forEach(r => (r.categories||[]).forEach(c => set.add(c)));
+  return Array.from(set).sort((a,b)=>a.localeCompare(b,'fr'));
+}
+function mainIngredients(){
+  const set = new Set();
+  recipes.forEach(r => (r.main_ingredients||[]).forEach(i => set.add(i)));
+  return Array.from(set).sort();
+}
+
+function renderSorter(){
+  const wrap = document.getElementById('sorter');
+  const choices = [['recent','Récentes'], ['title','A-Z']];
+  wrap.innerHTML = choices.map(([value,label])=>
+    `<button class="sort-btn ${sort===value?'active':''}" data-sort="${value}">${label}</button>`
+  ).join('');
+  wrap.querySelectorAll('[data-sort]').forEach(el=>{
+    el.addEventListener('click', ()=>{ sort = el.dataset.sort; render(); });
+  });
+}
+
+function renderFilters(){
+  // status est une valeur unique : les chips s'excluent, comme les catégories.
+  const statusWrap = document.getElementById('status-filters');
+  const choices = [['all','Toutes'], ['untried','○ jamais essayé'], ['favorite','★ à refaire'], ['classic','◆ classique']];
+  statusWrap.innerHTML = choices.map(([value,label])=>
+    `<div class="chip st-${value} ${status===value?'active':''}" data-status="${value}">${label}</div>`
+  ).join('');
+  statusWrap.querySelectorAll('[data-status]').forEach(el=>{
+    el.addEventListener('click', ()=>{ status = el.dataset.status; render(); });
+  });
+
+  const catWrap = document.getElementById('cat-filters');
+  let html = `<div class="chip ${category==='all'?'active':''}" data-cat="all">Toutes</div>`;
+  categories().forEach(c=>{
+    html += `<div class="chip ${category===c?'active':''}" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</div>`;
+  });
+  catWrap.innerHTML = html;
+  catWrap.querySelectorAll('[data-cat]').forEach(el=>{
+    el.addEventListener('click', ()=>{ category = el.dataset.cat; render(); });
+  });
+
+  const ingWrap = document.getElementById('ing-filters');
+  const ings = mainIngredients();
+  if(!ings.length){
+    ingWrap.innerHTML = `<span style="font-size:13px;color:var(--ink-soft);">Ajoute main_ingredients dans tes fichiers recette pour filtrer ici.</span>`;
+    return;
+  }
+  let ihtml = `<div class="chip ${ingredient==='all'?'active':''}" data-ing="all">Tous</div>`;
+  ings.forEach(i=>{
+    ihtml += `<div class="chip ${ingredient===i?'active':''}" data-ing="${escapeHtml(i)}">${escapeHtml(i)}</div>`;
+  });
+  ingWrap.innerHTML = ihtml;
+  ingWrap.querySelectorAll('[data-ing]').forEach(el=>{
+    el.addEventListener('click', ()=>{ ingredient = el.dataset.ing; render(); });
+  });
+}
+
+function render(){
+  renderSorter();
+  renderFilters();
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  let list = recipes.filter(r=>{
+    if(status!=='all' && r.status!==status) return false;
+    if(category!=='all' && !(r.categories||[]).includes(category)) return false;
+    if(ingredient!=='all' && !(r.main_ingredients||[]).includes(ingredient)) return false;
+    if(q){
+      const hay = (r.title+' '+(r.description||'')+' '+(r.main_ingredients||[]).join(' ')).toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  // "Récentes" trie sur updated : c'est la dernière activité, ajout ou retouche.
+  list = sort === 'recent'
+    ? list.slice().sort((a,b)=>String(b.updated||'').localeCompare(String(a.updated||'')))
+    : list.slice().sort((a,b)=>a.title.toLowerCase().localeCompare(b.title.toLowerCase(),'fr'));
+
+  document.getElementById('count').textContent = recipes.length + (recipes.length>1?' recettes gardées':' recette gardée');
+
+  const wrap = document.getElementById('listwrap');
+  if(list.length===0){
+    wrap.innerHTML = `<div class="empty"><div class="disp">${recipes.length===0?'Ta boîte est vide':'Aucun résultat'}</div><p>${recipes.length===0?'Ajoute une première recette dans data/recipes/.':'Essaie un autre filtre ou une autre recherche.'}</p></div>`;
+    return;
+  }
+  wrap.innerHTML = '<div class="grid">' + list.map(r=>`
+    <a class="rcard ${escapeHtml(r.status||'none')}" href="recipe.html?id=${encodeURIComponent(r.id)}">
+      <div class="rcard-top">
+        <h3>${escapeHtml(r.title)}</h3>
+        <span class="mark ${escapeHtml(r.status||'none')}">${(STATUS_META[r.status]||STATUS_META.none).icon}</span>
+      </div>
+      ${r.description?`<div class="desc">${escapeHtml(r.description)}</div>`:''}
+      <div class="tags">
+        ${isRecent(r.created)?'<span class="tag new">nouveau</span>':''}
+        ${(r.categories||[]).map(c=>`<span class="tag">${escapeHtml(c)}</span>`).join('')}
+        ${r.servings?`<span class="tag rust">${escapeHtml(formatYield(r.servings, r.yield_label))}</span>`:''}
+        ${r.total_time?`<span class="tag time">⏱ ${escapeHtml(formatDuration(r.total_time))}</span>`:''}
+        ${r.needs_review?'<span class="tag review">à vérifier</span>':''}
+      </div>
+      ${sort==='recent'?`<div class="card-when">${escapeHtml(relativeTime(r.updated))}</div>`:''}
+    </a>
+  `).join('') + '</div>';
+}
+
+document.getElementById('search').addEventListener('input', render);
+load();
+</script>
+</body>
+</html>

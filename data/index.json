@@ -1,0 +1,115 @@
+[
+  {
+    "id": "pate-sablee-pour-tarte-sucree",
+    "title": "Pâte sablée pour tarte sucrée",
+    "description": "Une pâte sablée croustillante et fondante, idéale pour toutes vos tartes sucrées.",
+    "categories": [
+      "Dessert"
+    ],
+    "servings": "1",
+    "yield_label": "moule",
+    "mold": "",
+    "prep_time": null,
+    "cook_time": 25,
+    "rest_time": 90,
+    "total_time": 115,
+    "status": "classic",
+    "needs_review": false,
+    "main_ingredients": [],
+    "created": "2026-08-30T00:00",
+    "updated": "2026-08-30T15:22"
+  },
+  {
+    "id": "risotto-poulet-courgette",
+    "title": "Risotto poulet-courgette",
+    "description": "Un risotto crémeux au poulet doré et à la courgette, parfumé au parmesan.",
+    "categories": [
+      "Plat"
+    ],
+    "servings": "4",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 15,
+    "cook_time": 25,
+    "rest_time": null,
+    "total_time": 40,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "poulet",
+      "courgette"
+    ],
+    "created": "2026-08-30T00:00",
+    "updated": "2026-08-30T18:09"
+  },
+  {
+    "id": "tarte-aux-mirabelles",
+    "title": "Tarte aux mirabelles",
+    "description": "Une tarte simple et gourmande qui met en valeur la mirabelle bien mûre, avec un appareil crémeux à la crème et aux amandes.",
+    "categories": [
+      "Dessert"
+    ],
+    "servings": "6",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": null,
+    "cook_time": 40,
+    "rest_time": null,
+    "total_time": 40,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "mirabelle"
+    ],
+    "created": "2026-08-30T00:00",
+    "updated": "2026-08-30T15:06"
+  },
+  {
+    "id": "tarte-salee-lardons-tomates-et-courgettes",
+    "title": "Tarte salée lardons, tomates et courgettes",
+    "description": "Une tarte gourmande et facile, parfaite pour un dîner léger ou un pique-nique.",
+    "categories": [
+      "Plat"
+    ],
+    "servings": "6",
+    "yield_label": "",
+    "mold": "moule à tarte",
+    "prep_time": 20,
+    "cook_time": 35,
+    "rest_time": null,
+    "total_time": 55,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "lardons",
+      "courgette",
+      "tomate"
+    ],
+    "created": "2026-08-30T00:00",
+    "updated": "2026-08-30T15:23"
+  },
+  {
+    "id": "tian-de-legumes-provencal",
+    "title": "Tian de légumes provençal",
+    "description": "Un gratin provençal coloré aux courgettes, tomates et carottes, parfumé aux herbes de Provence.",
+    "categories": [
+      "Plat"
+    ],
+    "servings": "4",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": null,
+    "cook_time": 45,
+    "rest_time": null,
+    "total_time": 45,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "courgette",
+      "tomate",
+      "carotte"
+    ],
+    "created": "2026-08-30T00:00",
+    "updated": "2026-08-30T19:25"
+  }
+]

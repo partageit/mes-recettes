@@ -1,0 +1,14 @@
+{
+  "name": "mes-recettes",
+  "version": "1.0.0",
+  "description": "Site statique de recettes : extraction, index et prévisualisation locale",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/serve.js",
+    "extract": "node scripts/extract-recipe.js",
+    "build-index": "node scripts/build-index.js"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  }
+}

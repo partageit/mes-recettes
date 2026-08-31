@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Liste de courses</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <a class="backlink" href="index.html">← toutes les recettes</a>
+  <div class="top" style="margin-top:14px;">
+    <div>
+      <h1>Liste de courses</h1>
+      <p id="count">Chargement…</p>
+    </div>
+  </div>
+
+  <div class="section-label" style="margin-top:0;">Recettes à préparer</div>
+  <div class="adder">
+    <input class="search" id="add-search" placeholder="Ajouter une recette…" autocomplete="off">
+    <div class="suggestions" id="suggestions" hidden></div>
+  </div>
+  <div id="picker"></div>
+
+  <div id="listwrap"></div>
+</div>
+
+<script type="module">
+import { parseRecipeMarkdown, formatYield, normalizeIngredientName, ingredientLabel, isOptionalIngredient } from './assets/recipe-format.js';
+
+const STORE = 'mes-recettes:courses';
+
+let recipes = [];          // l'index
+const details = new Map(); // id -> fiche complète, chargée à la demande
+let selection = {};        // id -> nombre de portions voulu
+let query = '';            // filtre du sélecteur
+let pickerOpen = false;
+let done = new Set();      // lignes déjà mises au panier
+
+function escapeHtml(s){
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+function loadState(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(STORE) || '{}');
+    selection = raw.selection || {};
+    done = new Set(raw.done || []);
+  }catch(e){ selection = {}; done = new Set(); }
+}
+
+function saveState(){
+  try{
+    localStorage.setItem(STORE, JSON.stringify({ selection, done: [...done] }));
+  }catch(e){ /* stockage indisponible : la page reste utilisable sans mémoire */ }
+}
+
+async function detailFor(id){
+  if(details.has(id)) return details.get(id);
+  const res = await fetch('data/recipes/' + id + '.md');
+  if(!res.ok) throw new Error('introuvable : ' + id);
+  const parsed = parseRecipeMarkdown(await res.text());
+  details.set(id, parsed);
+  return parsed;
+}
+
+// Deux quantités ne s'additionnent que dans la même unité. Sinon on juxtapose :
+// "500 g + 2" reste juste, là où une somme serait fausse.
+function addQuantity(entry, amount, unit){
+  if(amount == null){
+    // "Sel, poivre" sans quantité : n'apporte rien si une mesure existe déjà.
+    entry.loose = true;
+    return;
+  }
+  const key = unit || '';
+  entry.amounts[key] = (entry.amounts[key] || 0) + amount;
+}
+
+function renderQuantity(entry){
+  return Object.entries(entry.amounts).map(([unit, amount]) => {
+    const rounded = Math.round(amount * 100) / 100;
+    return unit ? `${rounded} ${unit}` : String(rounded);
+  }).join(' + ');
+}
+
+async function buildList(){
+  const ids = Object.keys(selection);
+  const entries = new Map();
+
+  for(const id of ids){
+    let recipe;
+    try{ recipe = await detailFor(id); }
+    catch(e){ continue; }
+
+    const base = parseFloat(recipe.servings) || 1;
+    const wanted = parseFloat(selection[id]) || base;
+    const factor = wanted / base;
+
+    for(const ing of recipe.ingredients){
+      const key = normalizeIngredientName(ing.name);
+      if(!key) continue;
+      if(!entries.has(key)){
+        entries.set(key, {
+          key,
+          label: ingredientLabel(ing.name),
+          amounts: {},
+          loose: false,
+          optional: true,
+          from: new Set(),
+        });
+      }
+      const entry = entries.get(key);
+      // Le libellé le plus court est le moins circonstancié : "courgette"
+      // plutôt que "courgettes moyennes, coupées en petits dés".
+      const candidate = ingredientLabel(ing.name);
+      if(candidate.length < entry.label.length) entry.label = candidate;
+      // Un ingrédient n'est optionnel que s'il l'est dans toutes les recettes.
+      if(!isOptionalIngredient(ing.name)) entry.optional = false;
+      entry.from.add(recipe.title);
+      addQuantity(entry, ing.amount == null ? null : ing.amount * factor, ing.unit);
+    }
+  }
+  return [...entries.values()].sort((a, b) => a.label.localeCompare(b.label, 'fr'));
+}
+
+function renderSuggestions(){
+  const box = document.getElementById('suggestions');
+  if(!pickerOpen){
+    box.hidden = true;
+    return;
+  }
+  const q = query.toLowerCase().trim();
+  const available = recipes
+    .filter(r => !Object.prototype.hasOwnProperty.call(selection, r.id))
+    .filter(r => !q || (r.title + ' ' + (r.main_ingredients||[]).join(' ')).toLowerCase().includes(q));
+
+  if(!available.length){
+    box.innerHTML = `<div class="suggestion empty-hint">${recipes.length && q ? 'Aucune recette ne correspond' : 'Toutes les recettes sont déjà retenues'}</div>`;
+    box.hidden = false;
+    return;
+  }
+  // On plafonne la liste : le champ de recherche est là pour affiner.
+  const shown = available.slice(0, 8);
+  box.innerHTML = shown.map(r =>
+    `<button class="suggestion" type="button" data-add="${escapeHtml(r.id)}">
+      <span>${escapeHtml(r.title)}</span>
+      <span class="suggestion-meta">${escapeHtml((r.categories||[]).join(', '))}</span>
+    </button>`
+  ).join('') + (available.length > shown.length
+    ? `<div class="suggestion empty-hint">+ ${available.length - shown.length} autres — précise ta recherche</div>`
+    : '');
+  box.hidden = false;
+}
+
+function renderPicker(){
+  const wrap = document.getElementById('picker');
+  const ids = Object.keys(selection);
+  if(!ids.length){
+    wrap.innerHTML = `<div class="empty"><div class="disp">Aucune recette retenue</div><p>Cherche une recette ci-dessus pour l'ajouter à ta liste.</p></div>`;
+    return;
+  }
+  const chosen = ids.map(id => recipes.find(r => r.id === id)).filter(Boolean);
+  wrap.innerHTML = '<div class="picker">' + chosen.map(r => `
+    <div class="pick on">
+      <span class="pick-title">${escapeHtml(r.title)}</span>
+      <span class="pick-yield">
+        <input class="pick-n" type="number" min="1" step="1"
+               value="${escapeHtml(String(selection[r.id]))}" data-n="${escapeHtml(r.id)}">
+        <span>${escapeHtml(r.yield_label || 'portions')}</span>
+      </span>
+      <button class="pick-remove" type="button" data-remove="${escapeHtml(r.id)}" title="Retirer">×</button>
+    </div>`).join('') + '</div>';
+}
+
+async function renderList(){
+  const wrap = document.getElementById('listwrap');
+  const chosen = Object.keys(selection).length;
+  document.getElementById('count').textContent = chosen
+    ? chosen + (chosen > 1 ? ' recettes sélectionnées' : ' recette sélectionnée')
+    : 'Coche des recettes pour composer ta liste';
+
+  if(!chosen){
+    wrap.innerHTML = '';
+    return;
+  }
+
+  const list = await buildList();
+  const remaining = list.filter(e => !done.has(e.key)).length;
+
+  wrap.innerHTML = `
+    <div class="section-label">À acheter</div>
+    <div class="checkbar">
+      <span class="check-count ${remaining===0?'ok':''}">${remaining===0?'Panier complet ✓':remaining + ' restant' + (remaining>1?'s':'')}</span>
+      <button class="check-toggle" id="copy">Copier la liste</button>
+      <button class="check-toggle" id="clear">Tout décocher</button>
+    </div>
+    ${list.map(e => {
+      const qty = renderQuantity(e);
+      const has = done.has(e.key);
+      return `<label class="ing-row check ${has?'has':''}">
+        <input type="checkbox" data-line="${escapeHtml(e.key)}" ${has?'checked':''}>
+        <span class="ing-name">${escapeHtml(e.label)}
+          ${e.optional?'<span class="opt">optionnel</span>':''}
+          <span class="from">${escapeHtml([...e.from].join(', '))}</span>
+        </span>
+        <span>${escapeHtml(qty)}</span>
+      </label>`;
+    }).join('')}
+  `;
+
+  document.getElementById('copy').addEventListener('click', async () => {
+    const text = list.filter(e => !done.has(e.key))
+      .map(e => { const q = renderQuantity(e); return '- ' + e.label + (q ? ' : ' + q : ''); })
+      .join('\n');
+    const btn = document.getElementById('copy');
+    try{
+      await navigator.clipboard.writeText(text);
+      btn.textContent = 'Copié ✓';
+    }catch(err){
+      btn.textContent = 'Copie refusée';
+    }
+    setTimeout(() => { btn.textContent = 'Copier la liste'; }, 1800);
+  });
+
+  document.getElementById('clear').addEventListener('click', () => {
+    done.clear();
+    saveState();
+    renderList();
+  });
+}
+
+// mousedown plutôt que click : le blur du champ de recherche fermerait la liste
+// avant que le clic n'aboutisse.
+document.addEventListener('mousedown', async event => {
+  const add = event.target.closest('[data-add]');
+  if(add){
+    event.preventDefault();
+    const id = add.dataset.add;
+    const r = recipes.find(x => x.id === id);
+    selection[id] = r ? (r.servings || 4) : 4;
+    query = '';
+    document.getElementById('add-search').value = '';
+    saveState();
+    renderSuggestions();
+    renderPicker();
+    await renderList();
+    return;
+  }
+  const remove = event.target.closest('[data-remove]');
+  if(remove){
+    delete selection[remove.dataset.remove];
+    saveState();
+    renderSuggestions();
+    renderPicker();
+    await renderList();
+    return;
+  }
+  if(!event.target.closest('.adder')){
+    pickerOpen = false;
+    renderSuggestions();
+  }
+});
+
+document.addEventListener('change', async event => {
+  const n = event.target.closest('input[data-n]');
+  if(n){
+    const value = Math.max(1, parseInt(n.value, 10) || 1);
+    selection[n.dataset.n] = value;
+    n.value = value;
+    saveState();
+    await renderList();
+    return;
+  }
+  const line = event.target.closest('input[data-line]');
+  if(line){
+    if(line.checked) done.add(line.dataset.line); else done.delete(line.dataset.line);
+    saveState();
+    await renderList();
+  }
+});
+
+async function load(){
+  try{
+    const res = await fetch('data/index.json');
+    recipes = await res.json();
+  }catch(e){ recipes = []; }
+  // Une recette supprimée depuis la dernière visite ne doit pas rester sélectionnée.
+  Object.keys(selection).forEach(id => {
+    if(!recipes.some(r => r.id === id)) delete selection[id];
+  });
+  renderSuggestions();
+  renderPicker();
+  await renderList();
+}
+
+const search = document.getElementById('add-search');
+search.addEventListener('input', () => { query = search.value; pickerOpen = true; renderSuggestions(); });
+search.addEventListener('focus', () => { pickerOpen = true; renderSuggestions(); });
+search.addEventListener('keydown', event => {
+  if(event.key === 'Escape'){ pickerOpen = false; renderSuggestions(); search.blur(); }
+});
+
+loadState();
+load();
+</script>
+</body>
+</html>
