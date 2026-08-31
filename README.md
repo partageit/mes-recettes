@@ -17,7 +17,7 @@ mes-recettes/
 │   ├── index.json         résumé léger de chaque recette (généré, ne pas éditer à la main)
 │   └── recipes/
 │       └── <slug>.md      fiche complète d'une recette (Markdown + frontmatter)
-├── _staging/              dépose ici les .md (ou .html) à traiter
+├── _staging/              dépose ici les .md (ou .html) à traiter ; --url y écrit aussi
 ├── .nojekyll              désactive Jekyll sur GitHub Pages (indispensable, voir plus bas)
 ├── CLAUDE.md              contexte projet chargé automatiquement par Claude Code
 ├── .claude/
@@ -143,6 +143,48 @@ npm run build-index          # complète created/updated, migre les anciens cham
 npm run build-index -- --no-touch   # lecture seule, ne réécrit aucun .md
 ```
 
+## Ajouter une recette depuis une page web
+
+```
+node scripts/extract-recipe.js --url "https://www.marmiton.org/recettes/recette_..."
+```
+
+La page est téléchargée dans `_staging/` (gitignoré, elle y reste si la fiche est
+à reprendre), puis lue comme n'importe quel `.html`. Les mêmes options
+s'appliquent : `--servings 6`, `--status`, `--category`, `--yield-label`.
+
+Ce qui est fait automatiquement :
+
+- lecture du **schema.org `Recipe`** (JSON-LD) de la page : titre, description,
+  personnes, temps, ingrédients, étapes. La plupart des sites de recettes en
+  publient un — cette lecture ne demande pas `cheerio`, donc pas Node >= 20.
+- **nettoyage de la queue SEO** du titre (« … : la meilleure recette », « … |
+  Marmiton ») ; une description qui récite « 6 personnes, 90 min de préparation »
+  est jetée plutôt que recopiée : elle est à réécrire à la main.
+- **traduction de la catégorie du site** (« Plat principal », « Mousse Aux
+  Fruits ») vers les catégories du projet ; ce qui ne se reconnaît pas repart
+  dans la devinette par mots-clés.
+- **`source_url`** renseigné avec l'URL canonique de la page.
+- recollage des étapes que le site a coupées en deux (une étape qui finit sur une
+  virgule est rattachée à la suivante).
+
+Deux avertissements à lire :
+
+- `↪ redirigé vers …` — l'URL demandée a redirigé. Sur ces sites, c'est
+  l'identifiant numérique qui compte, pas le slug :
+  `recette_soupe-a-l-oignon_18889.aspx` sert en réalité le bœuf bourguignon.
+  Vérifie le titre annoncé.
+- `pas de schema.org Recipe dans la page` — la page ne se laisse pas lire (site
+  sans données structurées, page protégée). Repli : demander à Claude Code de
+  lire la page et d'en écrire le `.md` au format `_staging/` ci-dessous, ou passer
+  par le skill `recette-formatter`.
+
+Une page enregistrée à la main garde son URL avec `--source-url` :
+
+```
+node scripts/extract-recipe.js _staging/page.html --source-url "https://…"
+```
+
 ## Ajouter une recette automatiquement
 
 1. Dépose un ou plusieurs fichiers dans `_staging/` :
@@ -205,8 +247,9 @@ Un peu de cannelle se marie très bien avec la mirabelle.
 - Un frontmatter en tête de fichier est facultatif et sert de valeurs par défaut
   (`servings`, `categories`, `mold`, `prep_time`, `source_url`…).
 
-> `cheerio` (sources `.html` uniquement) demande Node >= 20. Le flux `.md` n'en
-> dépend pas et fonctionne sur les versions antérieures.
+> `cheerio` demande Node >= 20, mais il ne sert plus que de **repli** pour les
+> pages `.html` sans schema.org `Recipe`. Le flux `.md` et la lecture du JSON-LD
+> (`--url`) fonctionnent sur les versions antérieures.
 
 ## Formater une recette dans Claude — skill `recette-formatter`
 

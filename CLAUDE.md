@@ -11,8 +11,9 @@ contient que ce qu'il faut savoir avant de toucher au dépôt.
 ## Commandes
 
 ```bash
-npm install                          # cheerio, requis seulement pour les sources .html (Node >= 20)
+npm install                          # cheerio, requis seulement pour les .html sans schema.org Recipe (Node >= 20)
 npm run dev                          # serveur local sur http://localhost:5173
+node scripts/extract-recipe.js --url "https://..."  # importe depuis une page web
 node scripts/extract-recipe.js --staging          # importe tout _staging/
 node scripts/extract-recipe.js fichier.md         # un seul fichier
 npm run build-index                  # régénère data/index.json depuis les .md

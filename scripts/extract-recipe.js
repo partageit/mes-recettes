@@ -3,13 +3,15 @@
  * Extrait une recette depuis un fichier déposé dans _staging/ et l'ajoute au
  * projet mes-recettes sous forme de fichier Markdown + frontmatter.
  *
- * Deux formats de source :
+ * Trois sources possibles :
  *   - .md  : recette en texte brut (titre, description, INGREDIENTS / STEPS / NOTES)
  *   - .html: page web (schema.org Recipe) ou widget Claude sauvegardé
+ *   - --url: une page web téléchargée à la volée dans _staging/, puis traitée comme un .html
  *
  * Usage :
  *   node scripts/extract-recipe.js chemin/vers/fichier.md [--category "Entrée,Soupe"] [--servings 6]
  *                                    [--status untried|favorite|classic|none] [--yield-label moule]
+ *   node scripts/extract-recipe.js --url https://... [--servings 6] [--status ...]
  *   node scripts/extract-recipe.js --staging   # traite tous les .md et .html de _staging/
  *
  * Le nombre de personnes est obligatoire : s'il est absent de la source, le
@@ -41,6 +43,14 @@ const RECIPES_DIR = path.join(ROOT, 'data', 'recipes');
 const INDEX_PATH = path.join(ROOT, 'data', 'index.json');
 const STAGING_DIR = path.join(ROOT, '_staging');
 const SUPPORTED_EXT = ['.md', '.html', '.htm'];
+// Certains sites de recettes renvoient une page vide à un client sans User-Agent.
+const USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36';
+const FETCH_TIMEOUT_MS = 20000;
+
+// Les titres et descriptions des sites de recettes traînent une queue SEO
+// (« : la meilleure recette », « | Marmiton ») qui n'a rien à faire dans une fiche.
+const TITLE_TAIL_NOISE = /^(la |le |les )?(meilleures? |vraie |bonne )?recettes?\b|^(facile|rapide|maison|inratable|traditionnelle?|savoureuse?)\b|^\d+\s*(min|personnes?)\b|^(marmiton|750g|cuisineaz|cuisine az|journal des femmes|ptitchef|jow)\b/i;
+const SEO_DESCRIPTION = /\d+\s*(min|minutes|h)\b[^.]*\bde (préparation|cuisson)|^recette\b[^.]*\b(facile|rapide|meilleure)\b/i;
 
 const CATEGORY_KEYWORDS = {
   'Dessert': ['sucre','farine','chocolat','gâteau','tarte','crème','vanille','biscuit','meringue','caramel'],
@@ -49,6 +59,31 @@ const CATEGORY_KEYWORDS = {
   'Apéro': ['apéro','tapenade','houmous','dip','toast'],
   'Petit-déjeuner': ['pancake','porridge','granola','confiture','brioche'],
 };
+
+// Les sites rangent leurs recettes dans leurs propres rayons (« Plat principal »,
+// « Mousse Aux Fruits ») : hors de question de les laisser entrer tels quels dans
+// les filtres de l'accueil. Ce qui ne se reconnaît pas repart en devinette.
+const SITE_CATEGORIES = [
+  ['Dessert', /dessert|p[âa]tisserie|g[âa]teau|tarte sucr|mousse|glace|confiserie/i],
+  ['Entrée', /entr[ée]e|salade compos|amuse.?bouche.*entr/i],
+  ['Soupe', /soupe|potage|velout[ée]|bouillon/i],
+  ['Apéro', /ap[ée]ritif|ap[ée]ro|amuse.?(bouche|gueule)|tapas/i],
+  ['Petit-déjeuner', /petit.?d[ée]jeuner|brunch|viennoiserie/i],
+  ['Plat', /plat principal|plat complet|plat unique|^plats?$/i],
+];
+
+function mapSiteCategory(value) {
+  const list = Array.isArray(value) ? value : [value];
+  const out = [];
+  for (const raw of list) {
+    const text = String(raw || '').trim();
+    if (!text) continue;
+    for (const [category, pattern] of SITE_CATEGORIES) {
+      if (pattern.test(text) && !out.includes(category)) out.push(category);
+    }
+  }
+  return out;
+}
 
 function guessCategory(text) {
   const low = text.toLowerCase();
@@ -61,15 +96,87 @@ function guessCategory(text) {
   return 'Plat';
 }
 
-function extractFromJsonLd($) {
-  const scripts = $('script[type="application/ld+json"]').toArray();
-  for (const el of scripts) {
-    let data;
-    try {
-      data = JSON.parse($(el).contents().text());
-    } catch (e) {
-      continue;
-    }
+// Retire la queue SEO d'un titre : « Cake à la banane : la meilleure recette »,
+// « Tarte aux pommes | Marmiton ». On ne coupe que sur un séparateur explicite,
+// et seulement si le segment de queue n'est que du remplissage.
+function cleanTitle(raw) {
+  const original = String(raw || '').replace(/\s+/g, ' ').trim();
+  const parts = original.split(/\s+[:|–—]\s+|\s+-\s+/);
+  while (parts.length > 1 && TITLE_TAIL_NOISE.test(parts[parts.length - 1].trim())) parts.pop();
+  let title = parts.join(' : ').trim();
+  title = title.replace(/^recette\s+(de\s+la\s+|de\s+l'|du\s+|des\s+|de\s+)?/i, '');
+  if (!title) return original;
+  return title.charAt(0).toUpperCase() + title.slice(1);
+}
+
+// Une description qui récite « 6 personnes, 90 min de préparation » est un
+// gabarit SEO, pas une description : mieux vaut aucune (le script la réclame)
+// qu'une phrase à rallonge sur la fiche.
+function cleanDescription(raw) {
+  const text = String(raw || '').replace(/\s+/g, ' ').trim();
+  if (!text || SEO_DESCRIPTION.test(text)) return '';
+  return text;
+}
+
+function cleanStepText(raw) {
+  return String(raw || '').replace(/\s+/g, ' ').trim();
+}
+
+// Marmiton & co coupent parfois une phrase en deux étapes (« Ajouter les oeufs, »
+// / « et bien mélanger. »). Une étape qui finit sur une virgule n'est jamais finie.
+function mergeTruncatedSteps(steps) {
+  const merged = [];
+  for (const step of steps) {
+    const last = merged[merged.length - 1];
+    if (last && /,$/.test(last)) merged[merged.length - 1] = `${last} ${step}`;
+    else merged.push(step);
+  }
+  return merged;
+}
+
+// Les étapes arrivent en HowToStep, parfois groupées en HowToSection.
+function flattenInstructions(raw, depth = 0) {
+  if (!raw || depth > 3) return [];
+  const list = Array.isArray(raw) ? raw : [raw];
+  const steps = [];
+  for (const step of list) {
+    if (typeof step === 'string') { steps.push(step); continue; }
+    if (!step || typeof step !== 'object') continue;
+    if (step.itemListElement) { steps.push(...flattenInstructions(step.itemListElement, depth + 1)); continue; }
+    const text = step.text || step.name || '';
+    if (text) steps.push(text);
+  }
+  return steps;
+}
+
+// Le JSON-LD se lit à la regex : pas besoin de cheerio, donc pas de Node >= 20
+// pour le cas courant (Marmiton, 750g, la plupart des blogs).
+function jsonLdDocuments(raw) {
+  const docs = [];
+  const re = /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+  let match;
+  while ((match = re.exec(raw))) {
+    try { docs.push(JSON.parse(match[1].trim())); } catch (e) { /* bloc invalide, ignoré */ }
+  }
+  return docs;
+}
+
+// Une URL de recette porte souvent un identifiant qui prime sur le slug : sur
+// marmiton, .../recette_soupe-a-l-oignon_18889.aspx sert le boeuf bourguignon.
+// Comparer l'URL demandée à l'URL canonique de la page évite d'importer, sans
+// s'en apercevoir, une recette qui n'est pas celle qu'on croyait.
+function samePage(a, b) {
+  try {
+    const ua = new URL(a), ub = new URL(b);
+    const norm = u => u.pathname.replace(/\/+$/, '').toLowerCase();
+    return ua.hostname.replace(/^www\./, '') === ub.hostname.replace(/^www\./, '') && norm(ua) === norm(ub);
+  } catch (e) {
+    return false;
+  }
+}
+
+function extractFromJsonLd(docs) {
+  for (const data of docs) {
     let candidates = Array.isArray(data) ? data : [data];
     for (const item of [...candidates]) {
       if (item && item['@graph']) candidates = candidates.concat(item['@graph']);
@@ -78,26 +185,21 @@ function extractFromJsonLd($) {
       if (!item || typeof item !== 'object') continue;
       const types = Array.isArray(item['@type']) ? item['@type'] : [item['@type']];
       if (types.includes('Recipe')) {
-        const title = item.name || '';
-        const description = item.description || '';
+        const title = cleanTitle(item.name || '');
+        const description = cleanDescription(item.description || '');
         let servings = item.recipeYield || '';
         if (Array.isArray(servings)) servings = servings[0];
         servings = String(servings).match(/\d+/)?.[0] || '';
         const ingredientsRaw = item.recipeIngredient || item.ingredients || [];
-        const instructionsRaw = item.recipeInstructions || [];
-        const steps = [];
-        for (const step of instructionsRaw) {
-          if (typeof step === 'string') steps.push(step);
-          else if (step && typeof step === 'object') steps.push(step.text || step.name || '');
-        }
+        const steps = mergeTruncatedSteps(flattenInstructions(item.recipeInstructions).map(cleanStepText).filter(Boolean));
         return {
           title,
           description,
           servings,
-          categories: normalizeCategories(item.recipeCategory, null),
+          categories: mapSiteCategory(item.recipeCategory),
           mold: '',
           unknown_infos: [],
-          source_url: item.url || '',
+          source_url: typeof item.url === 'string' ? item.url : (typeof item['@id'] === 'string' ? item['@id'] : ''),
           ingredients: ingredientsRaw.filter(Boolean).map(parseAmountUnit),
           steps: steps.filter(Boolean).map(splitStepDuration),
           notes: '',
@@ -113,11 +215,11 @@ function extractFromJsonLd($) {
 }
 
 function extractHeuristic($) {
-  const title = ($('h1').first().text() || $('title').first().text() || 'Recette sans titre').trim();
+  const title = cleanTitle($('h1').first().text() || $('title').first().text() || '') || 'Recette sans titre';
 
-  let description = $('meta[name="description"]').attr('content') || '';
+  let description = cleanDescription($('meta[name="description"]').attr('content') || '');
   if (!description) {
-    description = ($('p').first().text() || '').trim().slice(0, 200);
+    description = cleanDescription(($('p').first().text() || '').slice(0, 200));
   }
 
   function findSection(keywords) {
@@ -159,21 +261,83 @@ function extractHeuristic($) {
   };
 }
 
-// cheerio n'est chargé que pour les sources .html : il tire undici, qui exige
-// Node >= 20. Le flux .md doit rester utilisable sans cette contrainte.
-async function extractFromHtml(raw) {
+// cheerio n'est chargé que pour le repli heuristique : il tire undici, qui exige
+// Node >= 20. Une page qui expose un schema.org Recipe se lit sans lui.
+async function extractFromHtml(raw, sourceUrl = '') {
+  const fromJsonLd = extractFromJsonLd(jsonLdDocuments(raw));
+  if (fromJsonLd) {
+    const canonical = fromJsonLd.source_url;
+    if (sourceUrl && canonical && !samePage(sourceUrl, canonical)) {
+      console.log(`   ⚠ la page servie est ${canonical}`);
+      console.log(`     et non l'URL demandée : vérifie que « ${fromJsonLd.title} » est bien la recette voulue.`);
+    }
+    if (sourceUrl && !canonical) fromJsonLd.source_url = sourceUrl;
+    return fromJsonLd;
+  }
+
+  // cheerio tire undici, qui lève une erreur non rattrapable en Node < 20 (elle
+  // survient après le catch et tue le process) : on refuse avant de l'importer.
+  if (Number(process.versions.node.split('.')[0]) < 20) {
+    throw new Error(
+      `pas de schema.org Recipe dans la page, et le repli heuristique demande Node >= 20 `
+      + `(tu es en ${process.version}).\n`
+      + `   → nvm use 20, ou reformate la recette à la main dans _staging/<nom>.md.`
+    );
+  }
   let cheerio;
   try {
     cheerio = await import('cheerio');
   } catch (e) {
     throw new Error(
-      `impossible de charger cheerio (${e.message}).\n`
-      + `   → les sources .html demandent Node >= 20 (tu es en ${process.version}), `
-      + `ou npm install si la dépendance manque.`
+      `pas de schema.org Recipe dans la page, et cheerio est introuvable pour le repli (${e.message}).\n`
+      + `   → npm install, ou reformate la recette à la main dans _staging/<nom>.md.`
     );
   }
-  const $ = cheerio.load(raw);
-  return extractFromJsonLd($) || extractHeuristic($);
+  const data = extractHeuristic(cheerio.load(raw));
+  if (sourceUrl) data.source_url = sourceUrl;
+  return data;
+}
+
+/**
+ * Télécharge une page dans _staging/ (gitignoré) : l'extraction repart ensuite
+ * du fichier, et le HTML reste sur le disque si la fiche est à reprendre.
+ */
+async function downloadPage(url) {
+  let parsed;
+  try {
+    parsed = new URL(url);
+  } catch (e) {
+    throw new Error(`URL invalide : ${url}`);
+  }
+  if (!/^https?:$/.test(parsed.protocol)) {
+    throw new Error(`URL non supportée (${parsed.protocol}) : seul http(s) est téléchargeable.`);
+  }
+
+  let res;
+  try {
+    res = await fetch(parsed.href, {
+      headers: { 'User-Agent': USER_AGENT, 'Accept-Language': 'fr-FR,fr;q=0.9' },
+      redirect: 'follow',
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    });
+  } catch (e) {
+    throw new Error(`téléchargement impossible (${e.message}).`);
+  }
+  if (!res.ok) throw new Error(`la page a répondu ${res.status} ${res.statusText}.`);
+
+  const html = await res.text();
+  const last = decodeURIComponent(parsed.pathname.replace(/\/+$/, '').split('/').pop() || '');
+  const stem = last.replace(/\.(html?|aspx?|php|jsp)$/i, '').trim();
+  const base = slugify(stem || parsed.hostname);
+  fs.mkdirSync(STAGING_DIR, { recursive: true });
+  const outPath = path.join(STAGING_DIR, `${base}.html`);
+  fs.writeFileSync(outPath, html, 'utf-8');
+  console.log(`[↓] ${parsed.href}\n   → _staging/${base}.html (${Math.round(html.length / 1024)} ko)`);
+  // Une URL de recette qui redirige mène souvent à une autre recette : le dire.
+  if (res.url && !samePage(res.url, parsed.href)) {
+    console.log(`   ↪ redirigé vers ${res.url}`);
+  }
+  return { path: outPath, finalUrl: res.url || parsed.href };
 }
 
 function ask(question) {
@@ -234,7 +398,7 @@ function existingMeta(slug) {
   return parseFrontmatter(fs.readFileSync(outPath, 'utf-8')).meta;
 }
 
-async function processFile(filePath, options) {
+async function processFile(filePath, options, sourceUrl = '') {
   const ext = path.extname(filePath).toLowerCase();
   if (!SUPPORTED_EXT.includes(ext)) {
     console.log(`[ignoré] ${path.basename(filePath)} : extension non supportée (${SUPPORTED_EXT.join(', ')}).`);
@@ -249,7 +413,7 @@ async function processFile(filePath, options) {
 
   let data;
   try {
-    data = ext === '.md' ? parseStagingMarkdown(raw) : await extractFromHtml(raw);
+    data = ext === '.md' ? parseStagingMarkdown(raw) : await extractFromHtml(raw, sourceUrl || options.sourceUrl || '');
   } catch (e) {
     console.log(`[\u2717] ${path.basename(filePath)} : ${e.message}`);
     return null;
@@ -292,7 +456,7 @@ async function processFile(filePath, options) {
     ingredients: data.ingredients,
     steps: data.steps,
     notes: data.notes || '',
-    source_url: data.source_url || previous.source_url || '',
+    source_url: sourceUrl || options.sourceUrl || data.source_url || previous.source_url || '',
     created: normalizeStamp(previous.created) || now,
     updated: now,
     needs_review: data.confidence !== 'high' || data.ingredients.length === 0 || data.steps.length === 0,
@@ -327,10 +491,12 @@ async function processFile(filePath, options) {
 }
 
 function parseArgs(argv) {
-  const options = { staging: false, categories: [], servings: null, status: null, yieldLabel: null, files: [] };
+  const options = { staging: false, categories: [], servings: null, status: null, yieldLabel: null, sourceUrl: null, urls: [], files: [] };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === '--staging') options.staging = true;
+    else if (arg === '--url') options.urls.push(argv[++i]);
+    else if (arg === '--source-url') options.sourceUrl = argv[++i];
     else if (arg === '--category') options.categories.push(...normalizeCategories(argv[++i], null));
     else if (arg === '--servings') options.servings = argv[++i];
     else if (arg === '--status') {
@@ -351,6 +517,19 @@ function parseArgs(argv) {
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
+
+  for (const url of options.urls) {
+    let page;
+    try {
+      page = await downloadPage(url);
+    } catch (e) {
+      console.log(`[✗] ${url} : ${e.message}`);
+      console.log('   → si la page résiste, copie la recette à la main dans _staging/<nom>.md');
+      console.log('     (voir le format dans le README) puis relance --staging.');
+      continue;
+    }
+    await processFile(page.path, options, page.finalUrl);
+  }
 
   if (options.staging) {
     if (!fs.existsSync(STAGING_DIR)) {
@@ -374,9 +553,10 @@ async function main() {
     for (const f of options.files) {
       await processFile(f, options);
     }
-  } else {
+  } else if (!options.urls.length) {
     console.log('Usage: node scripts/extract-recipe.js <fichier.md|.html> [--category "Entrée,Soupe"] [--servings 6]');
-    console.log('       [--status untried|favorite|classic|none] [--yield-label moule]');
+    console.log('       [--status untried|favorite|classic|none] [--yield-label moule] [--source-url https://...]');
+    console.log('   ou: node scripts/extract-recipe.js --url https://... [--servings 6]');
     console.log('   ou: node scripts/extract-recipe.js --staging');
   }
 }
