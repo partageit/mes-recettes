@@ -53,23 +53,32 @@ const TITLE_TAIL_NOISE = /^(la |le |les )?(meilleures? |vraie |bonne )?recettes?
 const SEO_DESCRIPTION = /\d+\s*(min|minutes|h)\b[^.]*\bde (préparation|cuisson)|^recette\b[^.]*\b(facile|rapide|meilleure)\b/i;
 
 const CATEGORY_KEYWORDS = {
+  // En tête : une sauce ne doit pas se faire attraper par « crème » ou « tarte ».
+  // Mots-clés volontairement étroits — « sauce » seul rangerait « poulet sauce
+  // moutarde » au rayon des sauces.
+  'Sauce': ['sauce ','marinade','vinaigrette','coulis','pesto','mayonnaise','aïoli','condiment','chutney'],
   'Dessert': ['sucre','farine','chocolat','gâteau','tarte','crème','vanille','biscuit','meringue','caramel'],
   'Soupe': ['bouillon','potage','velouté','soupe'],
   'Entrée': ['salade','entrée','tartare','carpaccio'],
   'Apéro': ['apéro','tapenade','houmous','dip','toast'],
   'Petit-déjeuner': ['pancake','porridge','granola','confiture','brioche'],
+  // Après Dessert : un gâteau reste un dessert, seul ce qui se mange
+  // explicitement à quatre heures bascule ici.
+  'Goûter': ['goûter','gouter','crêpe','crepe','gaufre','madeleine','cookie'],
 };
 
 // Les sites rangent leurs recettes dans leurs propres rayons (« Plat principal »,
 // « Mousse Aux Fruits ») : hors de question de les laisser entrer tels quels dans
 // les filtres de l'accueil. Ce qui ne se reconnaît pas repart en devinette.
 const SITE_CATEGORIES = [
+  ['Sauce', /^sauces?$|sauces? et|marinade|condiment|vinaigrette|assaisonnement/i],
   ['Dessert', /dessert|p[âa]tisserie|g[âa]teau|tarte sucr|mousse|glace|confiserie/i],
   ['Entrée', /entr[ée]e|salade compos|amuse.?bouche.*entr/i],
   ['Soupe', /soupe|potage|velout[ée]|bouillon/i],
   ['Apéro', /ap[ée]ritif|ap[ée]ro|amuse.?(bouche|gueule)|tapas/i],
   ['Petit-déjeuner', /petit.?d[ée]jeuner|brunch|viennoiserie/i],
-  ['Plat', /plat principal|plat complet|plat unique|^plats?$/i],
+  ['Goûter', /go[ûu]ter|quatre.?heures|snack/i],
+  ['Plat', /plats? principa|plat complet|plat unique|^plats?$/i],
 ];
 
 function mapSiteCategory(value) {

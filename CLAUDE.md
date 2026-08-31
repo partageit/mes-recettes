@@ -57,8 +57,10 @@ chargement de `data/index.json` et des `.md`. Toujours passer par `npm run dev`.
 
 ## Deux axes de classement
 
-- **`categories`** — le ou les types de plat (Plat, Dessert, Entrée, Soupe, Apéro,
-  Petit-déjeuner, Autre). Cumulables : une quiche est Entrée + Plat. L'extraction
+- **`categories`** — le ou les types de plat (Plat, Dessert, Entrée, Soupe, Sauce,
+  Apéro, Petit-déjeuner, Goûter, Autre). `Sauce` couvre aussi les marinades, les
+  vinaigrettes et les condiments : ce qui accompagne un plat sans en être un.
+  Cumulables : une quiche est Entrée + Plat. L'extraction
   n'en devine qu'une seule ; la seconde s'ajoute à la main ou via `--category`.
 - **`status`** — une seule valeur, les quatre s'excluent :
 

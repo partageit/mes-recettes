@@ -84,10 +84,12 @@ Section facultative : variantes, conseils, remarques.
 
 Deux axes indépendants, qui se cumulent dans les filtres :
 
-**`categories`** — le ou les types de plat. Une recette peut en cumuler
-plusieurs : `[Entrée, Soupe]` pour un velouté servi en entrée. L'extraction n'en
-devine **qu'une seule** : ajoute la seconde à la main, ou passe
-`--category "Entrée,Soupe"`.
+**`categories`** — le ou les types de plat : Plat, Dessert, Entrée, Soupe,
+Sauce, Apéro, Petit-déjeuner, Goûter, Autre. `Sauce` couvre aussi les marinades,
+les vinaigrettes et les condiments — ce qui accompagne un plat sans en être un.
+Une recette peut en cumuler plusieurs : `[Entrée, Soupe]` pour un velouté servi
+en entrée. L'extraction n'en devine **qu'une seule** : ajoute la seconde à la
+main, ou passe `--category "Entrée,Soupe"`.
 
 **`status`** — une seule valeur, les trois s'excluent :
 
