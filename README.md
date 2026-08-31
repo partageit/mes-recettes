@@ -88,10 +88,13 @@ recherche — le bouton porte la valeur choisie, et chaque option annonce le nom
 de recettes qu'elle laisserait, les autres filtres restant en place :
 
 **`categories`** — le ou les types de plat : Plat, Dessert, Entrée, Soupe,
-Sauce, Apéro, Petit-déjeuner, Goûter, Autre. `Sauce` couvre aussi les marinades,
-les vinaigrettes et les condiments — ce qui accompagne un plat sans en être un.
+Sauce, Sauce sucrée, Marinade, Apéro, Petit-déjeuner, Goûter, Autre. Trois de ces
+familles désignent ce qui accompagne un plat sans en être un : `Sauce` pour le
+salé (vinaigrettes, condiments), `Sauce sucrée` pour ce qui nappe ou se tartine
+(caramel beurre salé, pâte azuki, coulis de fruits, confiture), et `Marinade`
+pour ce qui se prépare avant cuisson.
 Une recette peut en cumuler plusieurs : `[Entrée, Soupe]` pour un velouté servi
-en entrée. L'extraction n'en devine **qu'une seule** : ajoute la seconde à la
+en entrée, `[Plat, Marinade]` pour des côtes de porc marinées. L'extraction n'en devine **qu'une seule** : ajoute la seconde à la
 main, ou passe `--category "Entrée,Soupe"`.
 
 **`status`** — une seule valeur, les trois s'excluent :

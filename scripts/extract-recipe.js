@@ -58,15 +58,20 @@ const SEO_DESCRIPTION = /\d+\s*(min|minutes|h)\b[^.]*\bde (préparation|cuisson)
 const STEP_DURATION_HINT = /\b\d+(?:\s*(?:à|-)\s*\d+)?\s*(?:min\b|mn\b|minutes?|h\b|heures?)/i;
 
 const CATEGORY_KEYWORDS = {
-  // En tête : une sauce ne doit pas se faire attraper par « crème » ou « tarte ».
-  // Mots-clés volontairement étroits — « sauce » seul rangerait « poulet sauce
-  // moutarde » au rayon des sauces.
-  'Sauce': ['sauce ','marinade','vinaigrette','coulis','pesto','mayonnaise','aïoli','condiment','chutney'],
+  // En tête : ce qui accompagne un plat ne doit pas se faire attraper par
+  // « crème » ou « tarte ». Mots-clés volontairement étroits — « sauce » seul
+  // rangerait « poulet sauce moutarde » au rayon des sauces.
+  // Marinade avant Sauce : une marinade est une sauce, l'inverse est faux.
+  'Marinade': ['marinade','à mariner','saumure'],
+  'Sauce': ['sauce ','vinaigrette','coulis','pesto','mayonnaise','aïoli','condiment','chutney'],
+  // Avant Dessert, qui attraperait « caramel » et « chocolat » : ce qui nappe un
+  // dessert n'en est pas un. Mots-clés étroits, une ganache de tarte reste Dessert.
+  'Sauce sucrée': ['caramel beurre salé','pâte à tartiner','anko','azuki','lemon curd','crème anglaise','coulis de fruit','confiture'],
   'Dessert': ['sucre','farine','chocolat','gâteau','tarte','crème','vanille','biscuit','meringue','caramel'],
   'Soupe': ['bouillon','potage','velouté','soupe'],
   'Entrée': ['salade','entrée','tartare','carpaccio'],
   'Apéro': ['apéro','tapenade','houmous','dip','toast'],
-  'Petit-déjeuner': ['pancake','porridge','granola','confiture','brioche'],
+  'Petit-déjeuner': ['pancake','porridge','granola','brioche'],
   // Après Dessert : un gâteau reste un dessert, seul ce qui se mange
   // explicitement à quatre heures bascule ici.
   'Goûter': ['goûter','gouter','crêpe','crepe','gaufre','madeleine','cookie'],
@@ -76,7 +81,9 @@ const CATEGORY_KEYWORDS = {
 // « Mousse Aux Fruits ») : hors de question de les laisser entrer tels quels dans
 // les filtres de l'accueil. Ce qui ne se reconnaît pas repart en devinette.
 const SITE_CATEGORIES = [
-  ['Sauce', /^sauces?$|sauces? et|marinade|condiment|vinaigrette|assaisonnement/i],
+  ['Marinade', /marinade|saumure/i],
+  ['Sauce', /^sauces?$|sauces? et|condiment|vinaigrette|assaisonnement/i],
+  ['Sauce sucrée', /sauces? sucr|p[âa]te [àa] tartiner|coulis|confiture|p[âa]te de fruits/i],
   ['Dessert', /dessert|p[âa]tisserie|g[âa]teau|tarte sucr|mousse|glace|confiserie/i],
   ['Entrée', /entr[ée]e|salade compos|amuse.?bouche.*entr/i],
   ['Soupe', /soupe|potage|velout[ée]|bouillon/i],

@@ -67,6 +67,54 @@
     "updated": "2026-08-31T12:23"
   },
   {
+    "id": "cake-courgette-chocolat",
+    "title": "Cake courgette-chocolat",
+    "description": "Un cake ultra moelleux où la courgette se fond complètement dans le chocolat, sans laisser aucun goût de légume.",
+    "categories": [
+      "Dessert"
+    ],
+    "servings": "8",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": null,
+    "cook_time": 45,
+    "rest_time": null,
+    "total_time": 45,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "courgette",
+      "chocolat"
+    ],
+    "created": "2026-08-31T16:15",
+    "updated": "2026-08-31T16:24"
+  },
+  {
+    "id": "cake-sale-courgette-bacon-et-emmental",
+    "title": "Cake salé courgette, bacon et emmental",
+    "description": "Un cake salé moelleux, parfait pour un pique-nique ou un apéro dînatoire.",
+    "categories": [
+      "Apéro",
+      "Entrée"
+    ],
+    "servings": "6",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": null,
+    "cook_time": 50,
+    "rest_time": null,
+    "total_time": 50,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "courgette",
+      "lardons",
+      "emmental"
+    ],
+    "created": "2026-08-31T16:15",
+    "updated": "2026-08-31T16:16"
+  },
+  {
     "id": "caprice-des-dieux-pane",
     "title": "Caprice des Dieux pané",
     "description": "Un fromage entier pané et passé au four, croustillant dehors et coulant à la découpe.",
@@ -135,6 +183,30 @@
     "updated": "2026-08-31T12:23"
   },
   {
+    "id": "cotes-de-porc-marinade-sauce-barbecue",
+    "title": "Côtes de porc marinade sauce barbecue",
+    "description": "Marinade express pour côtes de porc au barbecue.",
+    "categories": [
+      "Plat",
+      "Marinade"
+    ],
+    "servings": "4",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 5,
+    "cook_time": 30,
+    "rest_time": 120,
+    "total_time": 155,
+    "status": "classic",
+    "needs_review": false,
+    "main_ingredients": [
+      "côte de porc",
+      "sauce barbecue"
+    ],
+    "created": "2026-08-31T16:15",
+    "updated": "2026-08-31T16:17"
+  },
+  {
     "id": "crepes-d-hiver",
     "title": "Crêpes d'hiver",
     "description": "La pâte à crêpes de la maison, parfumée au rhum et au beurre fondu.",
@@ -182,6 +254,77 @@
     ],
     "created": "2026-08-31T11:33",
     "updated": "2026-08-31T11:37"
+  },
+  {
+    "id": "cuisses-de-poulet-au-barbecue",
+    "title": "Cuisses de poulet au barbecue",
+    "description": "Cuisses de poulet marinées, grillées au barbecue avec une sauce bien caramélisée.",
+    "categories": [
+      "Plat"
+    ],
+    "servings": "4",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": null,
+    "cook_time": 35,
+    "rest_time": 120,
+    "total_time": 155,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "poulet",
+      "sauce barbecue"
+    ],
+    "created": "2026-08-31T16:15",
+    "updated": "2026-08-31T16:16"
+  },
+  {
+    "id": "galettes-de-courgettes-sauce-skyr-ail",
+    "title": "Galettes de courgettes, sauce skyr-ail",
+    "description": "Des galettes de courgettes croustillantes accompagnées d'une sauce fraîche au skyr et à l'ail.",
+    "categories": [
+      "Entrée",
+      "Plat"
+    ],
+    "servings": "4",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": null,
+    "cook_time": 6,
+    "rest_time": 15,
+    "total_time": 21,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "courgette",
+      "skyr",
+      "feta"
+    ],
+    "created": "2026-08-31T16:15",
+    "updated": "2026-08-31T16:16"
+  },
+  {
+    "id": "gateau-au-yaourt-ameliore-au-skyr",
+    "title": "Gâteau au yaourt amélioré au skyr",
+    "description": "Le classique gâteau au yaourt revisité avec du skyr, du beurre fondu et un zeste de citron.",
+    "categories": [
+      "Dessert"
+    ],
+    "servings": "8",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 20,
+    "cook_time": 40,
+    "rest_time": null,
+    "total_time": 60,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "skyr",
+      "citron"
+    ],
+    "created": "2026-08-31T16:15",
+    "updated": "2026-08-31T16:16"
   },
   {
     "id": "gateau-fin-a-la-rhubarbe",
@@ -273,6 +416,30 @@
     "updated": "2026-08-31T12:23"
   },
   {
+    "id": "gaufres-moelleuses",
+    "title": "Gaufres moelleuses",
+    "description": "Des gaufres dorées, croustillantes à l'extérieur et fondantes à l'intérieur.",
+    "categories": [
+      "Goûter"
+    ],
+    "servings": "6",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 10,
+    "cook_time": 25,
+    "rest_time": 5,
+    "total_time": 40,
+    "status": "classic",
+    "needs_review": false,
+    "main_ingredients": [
+      "farine",
+      "oeuf",
+      "lait"
+    ],
+    "created": "2026-08-31T16:15",
+    "updated": "2026-08-31T16:16"
+  },
+  {
     "id": "pate-a-pizza-epaisse-et-moelleuse",
     "title": "Pâte à pizza épaisse et moelleuse",
     "description": "Une pâte à pizza levée une heure, épaisse et moelleuse, de quoi faire deux pizzas de la taille de la plaque du four.",
@@ -291,6 +458,28 @@
     "main_ingredients": [],
     "created": "2026-08-31T11:33",
     "updated": "2026-08-31T12:23"
+  },
+  {
+    "id": "pate-de-haricots-azuki-anko",
+    "title": "Pâte de haricots azuki (Anko)",
+    "description": "Pâte sucrée de haricots rouges azuki, parfaite pour garnir des gaufres, crêpes ou pain.",
+    "categories": [
+      "Sauce sucrée"
+    ],
+    "servings": "1",
+    "yield_label": "bocal",
+    "mold": "",
+    "prep_time": null,
+    "cook_time": 110,
+    "rest_time": null,
+    "total_time": 110,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "haricot azuki"
+    ],
+    "created": "2026-08-31T16:15",
+    "updated": "2026-08-31T16:24"
   },
   {
     "id": "pate-sablee-pour-tarte-sucree",
@@ -334,6 +523,31 @@
     ],
     "created": "2026-08-31T11:33",
     "updated": "2026-08-31T11:38"
+  },
+  {
+    "id": "ratatouille-traditionnelle",
+    "title": "Ratatouille traditionnelle",
+    "description": "Un classique de la cuisine provençale, mijoté à base de légumes d'été.",
+    "categories": [
+      "Plat"
+    ],
+    "servings": "4",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": null,
+    "cook_time": 60,
+    "rest_time": null,
+    "total_time": 60,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "aubergine",
+      "courgette",
+      "poivron",
+      "tomate"
+    ],
+    "created": "2026-08-31T16:15",
+    "updated": "2026-08-31T16:16"
   },
   {
     "id": "risotto-poulet-courgette",
