@@ -286,7 +286,14 @@ function render(){
 });
 
 document.querySelectorAll('[data-menu-btn]').forEach(btn=>{
-  btn.addEventListener('click', ()=> toggleMenu(btn.closest('.filter-menu').dataset.axis));
+  btn.addEventListener('click', e=>{
+    // Le clic sur un bouton de menu n'est jamais un « clic ailleurs ». Il faut
+    // l'arrêter ici : toggleMenu() réécrit le contenu du bouton, et le nœud
+    // cliqué — le libellé — se retrouve détaché avant d'atteindre le document,
+    // où closest() ne le rattacherait plus à son menu.
+    e.stopPropagation();
+    toggleMenu(btn.closest('.filter-menu').dataset.axis);
+  });
 });
 document.getElementById('filter-reset').addEventListener('click', ()=>{
   filters = { status: 'all', category: 'all', ingredient: 'all' };
