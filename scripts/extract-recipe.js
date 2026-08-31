@@ -121,14 +121,59 @@ function cleanTitle(raw) {
 // Une description qui récite « 6 personnes, 90 min de préparation » est un
 // gabarit SEO, pas une description : mieux vaut aucune (le script la réclame)
 // qu'une phrase à rallonge sur la fiche.
+// Certains sites encodent les entités HTML *dans* leur JSON-LD : « d&apos;une
+// quiche » arrive tel quel jusqu'à la fiche. cheerio les décode pour le repli
+// heuristique, mais le chemin JSON-LD ne passe pas par lui.
+const HTML_ENTITIES = {
+  amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ',
+  eacute: 'é', egrave: 'è', ecirc: 'ê', agrave: 'à', acirc: 'â',
+  ccedil: 'ç', ugrave: 'ù', ucirc: 'û', icirc: 'î', iuml: 'ï',
+  ocirc: 'ô', oelig: 'œ', laquo: '«', raquo: '»', deg: '°', hellip: '…',
+  rsquo: '’', lsquo: '‘', ldquo: '“', rdquo: '”', ndash: '–', mdash: '—',
+};
+
+function decodeEntities(raw) {
+  return String(raw == null ? '' : raw).replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (whole, body) => {
+    if (body[0] === '#') {
+      const code = body[1] === 'x' || body[1] === 'X'
+        ? parseInt(body.slice(2), 16)
+        : parseInt(body.slice(1), 10);
+      return Number.isFinite(code) ? String.fromCodePoint(code) : whole;
+    }
+    const named = HTML_ENTITIES[body.toLowerCase()];
+    return named === undefined ? whole : named;
+  });
+}
+
+// Les durées schema.org sont en ISO 8601, et pas toujours sous la forme courte :
+// l'atelier des chefs sert « P0Y0M0DT0H0M900S », soit 15 min. On lit la partie
+// temps (après le T) plus les jours, et on rend des minutes.
+function parseIsoDuration(raw) {
+  const text = String(raw == null ? '' : raw).trim().toUpperCase();
+  const m = text.match(/^P(?:(\d+(?:\.\d+)?)Y)?(?:(\d+(?:\.\d+)?)M)?(?:(\d+(?:\.\d+)?)W)?(?:(\d+(?:\.\d+)?)D)?(?:T(?:(\d+(?:\.\d+)?)H)?(?:(\d+(?:\.\d+)?)M)?(?:(\d+(?:\.\d+)?)S)?)?$/);
+  if (!m) return null;
+  const [, , , weeks, days, hours, minutes, seconds] = m.map(v => (v === undefined ? 0 : Number(v)));
+  const total = ((weeks * 7 + days) * 24 + hours) * 60 + minutes + seconds / 60;
+  const rounded = Math.round(total);
+  return rounded > 0 ? rounded : null;
+}
+
 function cleanDescription(raw) {
-  const text = String(raw || '').replace(/\s+/g, ' ').trim();
+  const text = decodeEntities(raw).replace(/\s+/g, ' ').trim();
   if (!text || SEO_DESCRIPTION.test(text)) return '';
   return text;
 }
 
 function cleanStepText(raw) {
-  return String(raw || '').replace(/\s+/g, ' ').trim();
+  return decodeEntities(raw).replace(/\s+/g, ' ').trim();
+}
+
+// L'inverse existe aussi : une seule « étape » qui contient toute la recette,
+// ses paragraphes séparés par une ligne vide. Chaque paragraphe est une étape —
+// et c'est ce qui permet d'y accrocher un minuteur.
+function splitParagraphs(text) {
+  const parts = String(text || '').split(/\n\s*\n+/).map(x => x.trim()).filter(Boolean);
+  return parts.length > 1 ? parts : [text];
 }
 
 // Marmiton & co coupent parfois une phrase en deux étapes (« Ajouter les oeufs, »
@@ -194,13 +239,13 @@ function extractFromJsonLd(docs) {
       if (!item || typeof item !== 'object') continue;
       const types = Array.isArray(item['@type']) ? item['@type'] : [item['@type']];
       if (types.includes('Recipe')) {
-        const title = cleanTitle(item.name || '');
+        const title = cleanTitle(decodeEntities(item.name || ''));
         const description = cleanDescription(item.description || '');
         let servings = item.recipeYield || '';
         if (Array.isArray(servings)) servings = servings[0];
         servings = String(servings).match(/\d+/)?.[0] || '';
         const ingredientsRaw = item.recipeIngredient || item.ingredients || [];
-        const steps = mergeTruncatedSteps(flattenInstructions(item.recipeInstructions).map(cleanStepText).filter(Boolean));
+        const steps = mergeTruncatedSteps(flattenInstructions(item.recipeInstructions).flatMap(splitParagraphs).map(cleanStepText).filter(Boolean));
         return {
           title,
           description,
@@ -209,11 +254,11 @@ function extractFromJsonLd(docs) {
           mold: '',
           unknown_infos: [],
           source_url: typeof item.url === 'string' ? item.url : (typeof item['@id'] === 'string' ? item['@id'] : ''),
-          ingredients: ingredientsRaw.filter(Boolean).map(parseAmountUnit),
+          ingredients: ingredientsRaw.filter(Boolean).map(x => parseAmountUnit(decodeEntities(x))),
           steps: steps.filter(Boolean).map(splitStepDuration),
           notes: '',
-          prep_time: parseDuration(item.prepTime && String(item.prepTime).replace(/^PT/, '').replace('H', ' h ').replace('M', ' min')),
-          cook_time: parseDuration(item.cookTime && String(item.cookTime).replace(/^PT/, '').replace('H', ' h ').replace('M', ' min')),
+          prep_time: parseIsoDuration(item.prepTime),
+          cook_time: parseIsoDuration(item.cookTime),
           rest_time: null,
           confidence: 'high',
         };

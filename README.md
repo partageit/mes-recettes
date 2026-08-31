@@ -168,7 +168,11 @@ Ce qui est fait automatiquement :
   dans la devinette par mots-clés.
 - **`source_url`** renseigné avec l'URL canonique de la page.
 - recollage des étapes que le site a coupées en deux (une étape qui finit sur une
-  virgule est rattachée à la suivante).
+  virgule est rattachée à la suivante), et découpage inverse d'une « étape » qui
+  contient toute la recette en paragraphes séparés par une ligne vide.
+- **décodage des entités HTML** (`d&apos;une quiche`) que certains sites laissent
+  dans leur propre JSON-LD, et lecture des durées ISO 8601 sous toutes leurs
+  formes (`PT25M` comme `P0Y0M0DT0H0M900S`).
 
 Deux avertissements à lire :
 
