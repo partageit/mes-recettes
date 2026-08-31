@@ -207,6 +207,31 @@
     "updated": "2026-08-31T16:17"
   },
   {
+    "id": "cotes-echine-de-porc-marinees-facon-asiatique",
+    "title": "Côtes échine de porc marinées façon asiatique",
+    "description": "Une marinade laquée au soja, gingembre et miel pour des côtes fondantes et caramélisées.",
+    "categories": [
+      "Plat",
+      "Marinade"
+    ],
+    "servings": "4",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 10,
+    "cook_time": 24,
+    "rest_time": 120,
+    "total_time": 154,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "côte de porc",
+      "sauce soja",
+      "miel"
+    ],
+    "created": "2026-08-31T18:19",
+    "updated": "2026-08-31T18:19"
+  },
+  {
     "id": "crepes-d-hiver",
     "title": "Crêpes d'hiver",
     "description": "La pâte à crêpes de la maison, parfumée au rhum et au beurre fondu.",
@@ -277,6 +302,31 @@
     ],
     "created": "2026-08-31T16:15",
     "updated": "2026-08-31T16:16"
+  },
+  {
+    "id": "cuisses-de-poulet-roties-a-l-ail-et-aux-herbes",
+    "title": "Cuisses de poulet rôties à l'ail et aux herbes",
+    "description": "Des cuisses de poulet dorées, croustillantes et parfumées — un classique inratable.",
+    "categories": [
+      "Plat",
+      "Marinade"
+    ],
+    "servings": "4",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 10,
+    "cook_time": 45,
+    "rest_time": 15,
+    "total_time": 70,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "poulet",
+      "ail",
+      "thym"
+    ],
+    "created": "2026-08-31T18:19",
+    "updated": "2026-08-31T18:19"
   },
   {
     "id": "galettes-de-courgettes-sauce-skyr-ail",
@@ -460,6 +510,27 @@
     "updated": "2026-08-31T12:23"
   },
   {
+    "id": "pate-brisee",
+    "title": "Pâte brisée",
+    "description": "La pâte brisée maison au beurre, pour les quiches et les tartes, salées comme sucrées.",
+    "categories": [
+      "Plat",
+      "Dessert"
+    ],
+    "servings": "1",
+    "yield_label": "moule",
+    "mold": "28 cm",
+    "prep_time": 10,
+    "cook_time": null,
+    "rest_time": 30,
+    "total_time": 40,
+    "status": "classic",
+    "needs_review": false,
+    "main_ingredients": [],
+    "created": "2026-08-31T18:26",
+    "updated": "2026-08-31T18:26"
+  },
+  {
     "id": "pate-de-haricots-azuki-anko",
     "title": "Pâte de haricots azuki (Anko)",
     "description": "Pâte sucrée de haricots rouges azuki, parfaite pour garnir des gaufres, crêpes ou pain.",
@@ -525,6 +596,31 @@
     "updated": "2026-08-31T11:38"
   },
   {
+    "id": "quiche-lorraine-traditionnelle",
+    "title": "Quiche Lorraine traditionnelle",
+    "description": "La quiche lorraine classique, avec une pâte brisée maison au beurre, de la crème fraîche épaisse et des lardons fumés.",
+    "categories": [
+      "Entrée",
+      "Plat"
+    ],
+    "servings": "4",
+    "yield_label": "",
+    "mold": "28 cm",
+    "prep_time": 10,
+    "cook_time": 45,
+    "rest_time": null,
+    "total_time": 55,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "lardons",
+      "crème fraîche",
+      "gruyère"
+    ],
+    "created": "2026-08-31T18:19",
+    "updated": "2026-08-31T18:26"
+  },
+  {
     "id": "ratatouille-traditionnelle",
     "title": "Ratatouille traditionnelle",
     "description": "Un classique de la cuisine provençale, mijoté à base de légumes d'été.",
@@ -573,6 +669,30 @@
     "updated": "2026-08-30T18:09"
   },
   {
+    "id": "riz-cantonais-riz-frit",
+    "title": "Riz Cantonais (Riz Frit)",
+    "description": "Un classique de la cuisine chinoise, rapide et parfait pour recycler du riz cuit de la veille.",
+    "categories": [
+      "Plat"
+    ],
+    "servings": "4",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": null,
+    "cook_time": 12,
+    "rest_time": null,
+    "total_time": 12,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "riz",
+      "jambon",
+      "petits pois"
+    ],
+    "created": "2026-08-31T18:19",
+    "updated": "2026-08-31T18:19"
+  },
+  {
     "id": "rougail-saucisse",
     "title": "Rougail saucisse",
     "description": "Le plat réunionnais : des saucisses fumées mijotées dans une sauce tomate relevée au curcuma et au piment.",
@@ -619,6 +739,30 @@
     ],
     "created": "2026-08-31T11:33",
     "updated": "2026-08-31T11:37"
+  },
+  {
+    "id": "spaghettis-a-la-creme-et-aux-lardons",
+    "title": "Spaghettis à la crème et aux lardons",
+    "description": "Un plat rapide, réconfortant et savoureux — prêt en moins de 20 minutes.",
+    "categories": [
+      "Plat"
+    ],
+    "servings": "2",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 5,
+    "cook_time": 15,
+    "rest_time": null,
+    "total_time": 20,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "spaghettis",
+      "lardons",
+      "crème fraîche"
+    ],
+    "created": "2026-08-31T18:19",
+    "updated": "2026-08-31T18:19"
   },
   {
     "id": "tarte-a-gros-bords-nord-de-la-france",
@@ -802,5 +946,28 @@
     ],
     "created": "2026-08-31T11:33",
     "updated": "2026-08-31T12:23"
+  },
+  {
+    "id": "tiramisu-au-speculoos",
+    "title": "Tiramisu au Spéculoos",
+    "description": "Version gourmande du tiramisu classique, avec le goût épicé et caramélisé des spéculoos.",
+    "categories": [
+      "Dessert"
+    ],
+    "servings": "6",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 20,
+    "cook_time": null,
+    "rest_time": 240,
+    "total_time": 260,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "spéculoos",
+      "mascarpone"
+    ],
+    "created": "2026-08-31T18:19",
+    "updated": "2026-08-31T18:19"
   }
 ]
