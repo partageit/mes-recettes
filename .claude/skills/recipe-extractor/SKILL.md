@@ -90,7 +90,9 @@ Texte libre (facultatif).
   autre ligne est ignorée mais signalée par le script : **la reporter à
   l'utilisateur** plutôt que de la laisser passer.
 - `TEMPS` accepte `Préparation` / `Cuisson` / `Repos`. Un `{25 min}` en fin d'étape
-  devient un minuteur sur la fiche ; durées en `20 min`, `1 h` ou `1 h 30`.
+  devient un minuteur sur la fiche ; durées en `20 min`, `1 h` ou `1 h 30`. Une
+  étape ne porte qu'un seul minuteur : couper « enfourner 15 min à 200°C, puis 1 h
+  à 100°C » en deux étapes, sinon la seconde durée n'est pas minutable.
 - Un frontmatter facultatif en tête de fichier sert de valeurs par défaut
   (`servings`, `categories`, `mold`, `source_url`, `title`, `description`,
   `prep_time`, `cook_time`, `rest_time`).
@@ -144,6 +146,14 @@ normale pour obtenir une recette prête à intégrer.
    - quantités et unités bien séparées du nom de l'ingrédient ?
    - un seul ingrédient par ligne ? (`Sel, poivre` → deux lignes)
    - étapes complètes et dans l'ordre ?
+   - **les minuteurs** : aucune page web n'écrit de `{durée}`, ils se posent tous
+     ici. Le script liste les étapes qui annoncent une durée sans en porter une
+     (« 3 étape(s) annoncent une durée sans minuteur : §2, §5 ») : les reprendre
+     une par une. Le `{40 min}` va en **fin de ligne**, sinon il n'est pas lu.
+     Une durée « par face » ou « par crêpe » n'est pas un minuteur : la laisser.
+   - **une étape par durée** : une étape qui enchaîne deux cuissons (« 15 min à
+     200°C, puis 1 h à 100°C ») ne peut porter qu'un `{durée}` — la couper en deux
+     étapes minutables
    - **description** : une fiche issue du web arrive souvent sans (le gabarit SEO
      est rejeté) — la rédiger avec l'utilisateur, en une phrase
    - catégories pertinentes ? une seule est devinée : en proposer une seconde si la

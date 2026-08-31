@@ -52,6 +52,11 @@ const FETCH_TIMEOUT_MS = 20000;
 const TITLE_TAIL_NOISE = /^(la |le |les )?(meilleures? |vraie |bonne )?recettes?\b|^(facile|rapide|maison|inratable|traditionnelle?|savoureuse?)\b|^\d+\s*(min|personnes?)\b|^(marmiton|750g|cuisineaz|cuisine az|journal des femmes|ptitchef|jow)\b/i;
 const SEO_DESCRIPTION = /\d+\s*(min|minutes|h)\b[^.]*\bde (préparation|cuisson)|^recette\b[^.]*\b(facile|rapide|meilleure)\b/i;
 
+// « cuire 40 mn », « laisser lever 1 h 30 » : une durée annoncée dans le texte
+// d'une étape. Ne dit pas qu'il FAUT un minuteur (« 2 min par crêpe » n'en veut
+// pas), seulement qu'il faut regarder.
+const STEP_DURATION_HINT = /\b\d+(?:\s*(?:à|-)\s*\d+)?\s*(?:min\b|mn\b|minutes?|h\b|heures?)/i;
+
 const CATEGORY_KEYWORDS = {
   // En tête : une sauce ne doit pas se faire attraper par « crème » ou « tarte ».
   // Mots-clés volontairement étroits — « sauce » seul rangerait « poulet sauce
@@ -536,6 +541,18 @@ async function processFile(filePath, options, sourceUrl = '') {
   }
   if (!recipe.prep_time && !recipe.cook_time && !recipe.steps.some(s => s.minutes)) {
     console.log('   → aucun temps trouvé : voir le prompt « Demander les temps » du README.');
+  }
+  // Aucune page web n'écrit de {durée} : les minuteurs se posent toujours à la
+  // relecture. Signaler les étapes qui annoncent une durée sans en porter une
+  // évite l'oubli — c'est le seul moyen de les repérer sans relire la fiche.
+  const sansMinuteur = recipe.steps
+    .map((step, i) => ({ n: i + 1, step }))
+    .filter(({ step }) => !step.minutes && STEP_DURATION_HINT.test(step.text));
+  if (sansMinuteur.length) {
+    console.log(`   → ${sansMinuteur.length} étape(s) annoncent une durée sans minuteur : `
+      + sansMinuteur.map(({ n }) => `§${n}`).join(', '));
+    console.log('     ajoute {40 min} en FIN de ligne si la durée est à minuter ; une étape qui');
+    console.log('     en enchaîne deux se coupe en deux (voir « Une étape, un minuteur »).');
   }
   if (!previous.created && !recipe.main_ingredients.length) {
     console.log('   → main_ingredients: [] — remplis-le (ex: [courgette, poulet]) si 2-4 ingrédients');

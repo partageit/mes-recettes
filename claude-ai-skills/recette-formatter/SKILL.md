@@ -68,6 +68,10 @@ Variantes et conseils, s'il y en a.
   comme "saler et poivrer".
 - **Durées acceptées** : "10 min", "1 h", "1 h 30". Une seule valeur, jamais de
   fourchette — pour "18 à 20 minutes", écris {20 min} (borne haute).
+- **Une étape, un minuteur** : une étape ne porte qu'une seule {durée}. Si la
+  recette enchaîne deux durées dans la même phrase ("enfourner 15 min à 200°C,
+  puis 1 h à 100°C"), coupe-la en deux étapes, une par durée. C'est la seule
+  situation où tu ajoutes une étape.
 - **NOTES** : omets complètement la section s'il n'y a ni variante ni conseil à donner.
   N'écris jamais "Aucune." ou "Rien à signaler" — une section absente vaut mieux qu'une
   note vide.

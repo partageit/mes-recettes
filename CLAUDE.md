@@ -49,6 +49,9 @@ chargement de `data/index.json` et des `.md`. Toujours passer par `npm run dev`.
   vérification du placard et la liste de courses n'en verraient qu'un. Ce qui suit
   une virgule est de la préparation (`courgettes, coupées en dés`) et est ignoré
   au regroupement — n'y jamais mettre un second ingrédient.
+- **Une étape, un minuteur.** Le `{25 min}` d'une étape est unique : une étape qui
+  enchaîne deux durées (« 15 min à 200°C, puis 1 h à 100°C ») en perd une. La
+  couper en deux étapes, une par durée.
 - **`_staging/` est gitignoré** (sauf `.gitkeep`) : rien de ce qui y est déposé ne
   part sur GitHub, et c'est voulu.
 - Une ré-extraction **ne doit pas écraser** ce qui a été saisi à la main :

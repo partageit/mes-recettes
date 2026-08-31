@@ -350,6 +350,8 @@ Règles :
   minuter : cuisson, repos, levée, marinade. Pas sur « saler et poivrer ».
 - Durées : « 10 min », « 1 h », « 1 h 30 ». Une seule valeur, jamais de
   fourchette : pour « 18 à 20 minutes », écris {20 min}.
+- Une étape ne porte qu'une seule {durée} : coupe en deux étapes celle qui
+  enchaîne deux cuissons (« 15 min à 200°C, puis 1 h à 100°C »).
 - N'invente aucun temps que tu ne peux pas déduire : omets-le plutôt.
 - Ne change ni les quantités, ni le nombre d'étapes, ni leur ordre.
 - Unités métriques uniquement : g, ml, L, c.à.s, c.à.c.
@@ -374,6 +376,10 @@ somme s'affiche sur la carte d'accueil (`⏱ 1 h 45`). Le `{durée}` en fin d'é
 est facultatif, indépendant des trois autres, et se lit aussi bien en `{25 min}`
 qu'en `{1 h 30}`. Une accolade non reconnue est laissée telle quelle dans le
 texte plutôt que supprimée.
+
+**Une étape ne porte qu'un seul minuteur.** Une étape qui enchaîne deux durées
+(« enfourner 15 min à 200°C, puis 1 h à 100°C ») en perd forcément une : coupe-la
+en deux étapes, une par durée, pour avoir les deux minuteurs.
 
 ## Retrouver les recettes récentes
 
