@@ -1,5 +1,27 @@
 [
   {
+    "id": "cake-a-la-banane-banana-bread",
+    "title": "Cake à la banane (banana bread)",
+    "description": "Un cake moelleux aux bananes bien mûres, qui cuit doucement une heure à four bas.",
+    "categories": [
+      "Dessert"
+    ],
+    "servings": "6",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 30,
+    "cook_time": 60,
+    "rest_time": null,
+    "total_time": 90,
+    "status": "classic",
+    "needs_review": false,
+    "main_ingredients": [
+      "banane"
+    ],
+    "created": "2026-08-31T11:00",
+    "updated": "2026-08-31T11:21"
+  },
+  {
     "id": "pate-sablee-pour-tarte-sucree",
     "title": "Pâte sablée pour tarte sucrée",
     "description": "Une pâte sablée croustillante et fondante, idéale pour toutes vos tartes sucrées.",
