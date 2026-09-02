@@ -259,3 +259,77 @@ a{color:inherit;text-decoration:none;}
 /* Bascule clair / sombre */
 .theme-toggle{flex:none;width:34px;height:34px;padding:0;border:1px solid var(--line);border-radius:50%;background:var(--card);color:var(--ink-soft);font-family:inherit;font-size:15px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 .theme-toggle:hover{border-color:var(--basil);color:var(--basil-dark);}
+
+/* --- Impression -------------------------------------------------------------
+   Une recette qu'on emporte au plan de travail, une liste qu'on emporte au
+   marché. Deux règles guident ce bloc : ce qui ne se clique pas sur papier
+   disparaît, et ce qui n'existe que dans le DOM (les portions recalculées) doit
+   survivre à l'impression. */
+@media print{
+  /* Le sombre imprimerait un texte presque blanc : les navigateurs suppriment
+     les fonds mais gardent la couleur du texte. On repasse donc la palette
+     entière en encre noire. Les trois sélecteurs couvrent les trois façons dont
+     le thème peut être fixé, et priment par leur position en fin de fichier. */
+  :root,
+  :root[data-theme="dark"],
+  :root:not([data-theme="light"]){
+    color-scheme:light;
+    --parchment:#fff; --card:#fff; --field:#fff;
+    --ink:#000; --ink-soft:#444; --placeholder:#666; --line:#bbb;
+    --basil:#000; --basil-dark:#000; --basil-bg:#fff;
+    --rust:#000; --rust-bg:#fff;
+    --gold:#000; --gold-bg:#fff;
+    --neutral-bg:#fff; --time-bg:#fff; --time-fg:#000;
+    --review-bg:#fff; --review-fg:#000;
+    --on-accent:#fff; --shadow:transparent;
+  }
+
+  @page{margin:14mm;}
+  body{font-size:11pt;}
+  .wrap{max-width:none;padding:0;}
+
+  /* Tout ce qui appelle un clic. La barre de vérification et celle des étapes
+     partent aussi : leur décompte ne veut plus rien dire sur papier. */
+  .backlink, .theme-toggle, .checkbar, .stepbar,
+  .adder, .suggestions, #picker, .wrap > .section-label,
+  .servingsbar button, .timer-reset{display:none;}
+
+  /* Le nombre de portions à l'écran est celui qu'on a réglé au + et au − :
+     c'est justement lui qu'on veut sur la feuille, mais sans son cadre. */
+  .servingsbar{display:block;border:0;padding:0;margin-bottom:12px;max-width:none;
+    font-size:12pt;font-weight:600;}
+  .servingsbar span{text-align:left;}
+
+  /* La numérotation vient d'un compteur CSS et non du bouton .step-mark : celui
+     d'une étape cochée affiche « ✓ » et ferait disparaître son numéro. */
+  .steps{counter-reset:step;}
+  .steps li{counter-increment:step;padding-left:26px;}
+  /* .current et .done sont plus spécifiques que « .steps li » : sans les nommer,
+     l'étape en cours garderait son liseré, qui masque le numéro imprimé, et les
+     étapes déjà faites sortiraient en gris. */
+  .steps li, .steps li.current, .steps li.done{background:none;box-shadow:none;
+    border-radius:0;color:var(--ink);}
+  .steps li::before{content:counter(step) ".";position:absolute;left:0;top:8px;font-weight:600;}
+  .step-mark{display:none;}
+
+  /* Le minuteur porte la seule trace de la durée de l'étape : splitStepDuration
+     a retiré « {40 min} » du texte. On imprime data-minutes plutôt que le
+     libellé du bouton, qui vaudrait « ⏸ 12:04 » sur un minuteur en cours. */
+  .timer{border:0;background:none;padding:0;min-width:0;font-size:0;color:var(--ink-soft);}
+  .timer::after{content:"— " attr(data-minutes);font-size:10pt;font-weight:400;}
+
+  /* Cases à cocher : sur la liste de courses, ce sont elles qu'on coche dans les
+     rayons. Sans print-color-adjust, celles déjà cochées sortiraient vides. */
+  .ing-row.check input{print-color-adjust:exact;-webkit-print-color-adjust:exact;}
+
+  .tag{border:1px solid var(--line);}
+  .time-cell, .notes{background:none;}
+  .dates{font-size:9pt;}
+
+  /* Le lien source ne se clique pas : on écrit l'adresse en toutes lettres. */
+  .sourcelink::after{content:" — " attr(href);font-size:9pt;word-break:break-all;}
+
+  /* Rien ne doit se couper au milieu d'un ingrédient ou d'une étape. */
+  .ing-row, .steps li, .time-cell, .notes{break-inside:avoid;}
+  h2, .section-label{break-after:avoid;}
+}

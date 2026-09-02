@@ -242,8 +242,10 @@ function clock(seconds){
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
+// data-minutes n'est lu qu'à l'impression : la durée de l'étape ne vit nulle
+// part ailleurs dans le DOM, splitStepDuration l'ayant retirée du texte.
 function timerButton(index, minutes){
-  return `<button class="timer" data-step="${index}" type="button"></button>`
+  return `<button class="timer" data-step="${index}" data-minutes="${escapeHtml(formatDuration(minutes))}" type="button"></button>`
     + `<button class="timer-reset" data-reset="${index}" type="button" title="Réinitialiser">↺</button>`;
 }
 
