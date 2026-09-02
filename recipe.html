@@ -19,7 +19,7 @@
 </div>
 
 <script type="module">
-import { parseRecipeMarkdown, formatYield, formatDuration, STATUS_META, ingredientLabel, isOptionalIngredient } from './assets/recipe-format.js';
+import { parseRecipeMarkdown, formatYield, formatDuration, STATUS_META, ingredientLabel, isOptionalIngredient, parseStamp } from './assets/recipe-format.js';
 
 function escapeHtml(s){
   const d = document.createElement('div');
@@ -131,18 +131,22 @@ window.changeServings = function(delta){
   render();
 };
 
-function formatDate(iso){
-  if(!iso) return '';
-  const d = new Date(iso + 'T00:00:00');
-  if(isNaN(d)) return iso;
+// created et updated portent l'heure (YYYY-MM-DDTHH:MM) : c'est parseStamp qui
+// sait les lire. Y ajouter 'T00:00:00' fabriquait une date invalide, et la ligne
+// affichait l'horodatage brut.
+function formatDate(stamp){
+  const d = parseStamp(stamp);
+  if(!d) return '';
   return d.toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'});
 }
 
 // « Modifiée le » n'a d'intérêt que si la recette a bougé depuis sa création.
 function dateLine(r){
   const parts = [];
-  if(r.created) parts.push('Ajoutée le ' + formatDate(r.created));
-  if(r.updated && r.updated !== r.created) parts.push('modifiée le ' + formatDate(r.updated));
+  const created = formatDate(r.created);
+  const updated = formatDate(r.updated);
+  if(created) parts.push('Ajoutée le ' + created);
+  if(updated && r.updated !== r.created) parts.push('modifiée le ' + updated);
   if(!parts.length) return '';
   return `<div class="dates">${escapeHtml(parts.join(', '))}</div>`;
 }
