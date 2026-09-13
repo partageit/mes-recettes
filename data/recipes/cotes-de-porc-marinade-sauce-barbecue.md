@@ -11,6 +11,7 @@ cook_time: 30
 rest_time: 120
 status: classic
 main_ingredients: [côte de porc, sauce barbecue]
+see_also: [temps-de-cuisson-au-barbecue]
 source_url: 
 created: 2026-08-31T16:15
 updated: 2026-08-31T16:17

@@ -45,6 +45,10 @@ chargement de `data/index.json` et des `.md`. Toujours passer par `npm run dev`.
   `data/recipes/*.md` en pages HTML et le site n'affiche plus aucune recette.
 - **`created` ne change jamais** une fois la recette ajoutée. `updated` est recalé
   à chaque extraction et par `build-index`. Format `YYYY-MM-DDTHH:MM`, heure locale.
+  `build-index` recale `updated` dès que la date du fichier sur le disque la dépasse :
+  pour une retouche qui ne change pas la recette (ajouter un `see_also`), relever
+  la date du fichier avant d'écrire et la restaurer après (`fs.utimesSync`), sinon
+  la recette remonte dans « Récentes ».
 - **Un seul ingrédient par ligne.** `Sel, poivre` doit devenir deux lignes : la
   vérification du placard et la liste de courses n'en verraient qu'un. Ce qui suit
   une virgule est de la préparation (`courgettes, coupées en dés`) et est ignoré

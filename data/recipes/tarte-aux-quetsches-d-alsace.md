@@ -11,6 +11,7 @@ cook_time: 30
 rest_time: 
 status: favorite
 main_ingredients: [quetsche]
+see_also: [pate-sablee-pour-tarte-sucree]
 source_url: https://www.marmiton.org/recettes/recette_tarte-aux-quetsches-d-alsace_23380.aspx
 created: 2026-08-31T11:33
 updated: 2026-08-31T12:23

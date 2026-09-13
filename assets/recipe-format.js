@@ -437,6 +437,13 @@ export function parseRecipeSections(body) {
   };
 }
 
+// Renvois vers d'autres fiches, par slug : la côte de bœuf renvoie au mémo des
+// temps de cuisson, la quiche à la pâte brisée. Aucun lien retour n'est déduit.
+export function normalizeSeeAlso(value) {
+  const list = Array.isArray(value) ? value : String(value == null ? '' : value).split(',');
+  return [...new Set(list.map(s => String(s).trim()).filter(Boolean))];
+}
+
 export function parseRecipeMarkdown(raw) {
   const { meta, body } = parseFrontmatter(raw);
   const { ingredients, steps, notes, sections } = parseRecipeSections(body);
@@ -454,6 +461,7 @@ export function parseRecipeMarkdown(raw) {
     rest_time: parseDuration(meta.rest_time),
     status: normalizeStatus(meta.status, { keeper: meta.keeper === true, classic: meta.classic === true }),
     main_ingredients: Array.isArray(meta.main_ingredients) ? meta.main_ingredients : [],
+    see_also: normalizeSeeAlso(meta.see_also),
     source_url: meta.source_url || '',
     created: normalizeStamp(meta.created),
     updated: normalizeStamp(meta.updated),
@@ -482,6 +490,9 @@ export function stringifyRecipeMarkdown(recipe) {
   lines.push(`rest_time: ${recipe.rest_time || ''}`);
   lines.push(`status: ${normalizeStatus(recipe.status, recipe)}`);
   lines.push(`main_ingredients: [${(recipe.main_ingredients || []).join(', ')}]`);
+  // Écrit seulement s'il sert : les fiches sans renvoi ne portent pas un champ vide.
+  const seeAlso = normalizeSeeAlso(recipe.see_also);
+  if (seeAlso.length) lines.push(`see_also: [${seeAlso.join(', ')}]`);
   lines.push(`source_url: ${recipe.source_url || ''}`);
   lines.push(`created: ${normalizeStamp(recipe.created) || nowStamp()}`);
   lines.push(`updated: ${normalizeStamp(recipe.updated) || nowStamp()}`);

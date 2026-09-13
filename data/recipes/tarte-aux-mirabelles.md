@@ -11,6 +11,7 @@ cook_time: 40
 rest_time: 
 status: favorite
 main_ingredients: [mirabelle]
+see_also: [pate-sablee-pour-tarte-sucree]
 source_url: 
 created: 2026-08-30T00:00
 updated: 2026-08-30T15:06

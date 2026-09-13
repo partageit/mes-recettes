@@ -11,6 +11,7 @@ cook_time: 35
 rest_time: 
 status: favorite
 main_ingredients: [lardons, courgette, tomate]
+see_also: [pate-brisee]
 source_url: 
 created: 2026-08-30T00:00
 updated: 2026-08-30T15:23

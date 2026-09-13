@@ -135,6 +135,21 @@ saisie pour retrouver le sien sans dérouler toute la liste.
 `servings` est obligatoire : c'est la base du calcul des quantités quand on
 change le nombre de portions sur la fiche.
 
+### Renvois vers d'autres fiches
+
+`see_also` liste, par leur slug, les fiches vers lesquelles renvoyer : la pâte
+d'une quiche, le mémo des temps de cuisson pour une viande au barbecue.
+
+```yaml
+see_also: [pate-brisee, pate-sablee-pour-tarte-sucree]
+```
+
+Ils s'affichent en bas de la fiche, dans « Voir aussi », sous le titre actuel de
+la fiche liée. Le lien est à sens unique : la pâte brisée ne liste pas les tartes
+qui y renvoient. Le champ est facultatif, préservé lors d'une ré-extraction, et
+`build-index` signale un slug qui ne correspond à aucune fiche. La liste de
+courses n'en tient pas compte : « 1 pâte brisée » reste une ligne à acheter.
+
 `created` ne change jamais une fois la recette ajoutée ; `updated` est recalé à
 chaque extraction, et par `build-index` d'après la date du fichier sur le disque.
 Les deux s'affichent en bas de la fiche recette.

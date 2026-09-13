@@ -114,12 +114,35 @@ async function load(){
     const text = await res.text();
     recipe = parseRecipeMarkdown(text);
     servings = parseFloat(recipe.servings) || 4;
+    await loadSeeAlso();
     loadChecked();
     loadDoneSteps();
     render();
   }catch(e){
     showError();
   }
+}
+
+// Les renvois sont des slugs : leur titre vient de l'index, pour rester juste
+// quand la fiche liée est renommée. Un slug absent de l'index n'est pas affiché.
+let seeAlso = [];
+async function loadSeeAlso(){
+  seeAlso = [];
+  if(!recipe.see_also.length) return;
+  try{
+    const index = await (await fetch('data/index.json')).json();
+    seeAlso = recipe.see_also
+      .map(id => index.find(r => r.id === id))
+      .filter(Boolean);
+  }catch(e){ /* sans index, la fiche s'affiche sans ses renvois */ }
+}
+
+function seeAlsoHtml(){
+  if(!seeAlso.length) return '';
+  return `<div class="section-label">Voir aussi</div><div class="seealso">`
+    + seeAlso.map(r => `<a href="recipe.html?id=${encodeURIComponent(r.id)}">${escapeHtml(r.title)}`
+      + `${r.type === 'memo' ? ' <span class="tag memo">mémo</span>' : ''}</a>`).join('')
+    + `</div>`;
 }
 
 function showError(){
@@ -431,6 +454,7 @@ function render(){
     ${r.type==='memo'?'':recipeBody(r)}
     ${sectionsHtml(r)}
     ${r.notes?`<div class="section-label">Notes</div><div class="notes">${escapeHtml(r.notes)}</div>`:''}
+    ${seeAlsoHtml()}
     ${r.source_url?`<a class="sourcelink" href="${escapeHtml(r.source_url)}" target="_blank" rel="noopener">Source originale ↗</a>`:''}
     ${dateLine(r)}
   `;

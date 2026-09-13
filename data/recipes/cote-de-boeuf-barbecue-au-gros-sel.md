@@ -11,6 +11,7 @@ cook_time: 15
 rest_time: 
 status: favorite
 main_ingredients: [côte de boeuf]
+see_also: [temps-de-cuisson-au-barbecue]
 source_url: https://www.marmiton.org/recettes/recette_cote-de-boeuf-barbecue-au-gros-sel_39074.aspx
 created: 2026-08-31T11:33
 updated: 2026-08-31T12:23

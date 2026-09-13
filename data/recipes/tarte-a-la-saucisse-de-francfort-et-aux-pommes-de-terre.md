@@ -11,6 +11,7 @@ cook_time: 35
 rest_time: 
 status: classic
 main_ingredients: [saucisse de Francfort, pomme de terre]
+see_also: [pate-brisee]
 source_url: https://www.atelierdeschefs.fr/recettes/15861/tarte-a-la-saucisse-de-francfort-et-aux-pommes-de-terre/
 created: 2026-08-31T12:15
 updated: 2026-08-31T12:15

@@ -11,6 +11,7 @@ cook_time: 45
 rest_time: 
 status: favorite
 main_ingredients: [lardons, crème fraîche, gruyère]
+see_also: [pate-brisee]
 source_url: 
 created: 2026-08-31T18:19
 updated: 2026-08-31T18:26

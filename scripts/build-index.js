@@ -147,6 +147,11 @@ function main() {
     if (missing.length) {
       console.log(`⚠ ${f} : champ(s) manquant(s) -> ${missing.join(', ')}`);
     }
+    // Un renvoi vers une fiche renommée ou supprimée ne s'afficherait plus.
+    const broken = r.see_also.filter(slug => !files.includes(`${slug}.md`));
+    if (broken.length) {
+      console.log(`⚠ ${f} : see_also introuvable -> ${broken.join(', ')}`);
+    }
 
     return {
       id: r.id || path.basename(f, '.md'),
