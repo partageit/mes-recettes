@@ -573,6 +573,29 @@
     "updated": "2026-08-30T15:22"
   },
   {
+    "id": "poelee-de-poulet-a-la-creme-et-aux-champignons",
+    "title": "Poêlée de poulet à la crème et aux champignons",
+    "description": "Une version douce et gourmande, sans moutarde.",
+    "categories": [
+      "Plat"
+    ],
+    "servings": "2",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": null,
+    "cook_time": 15,
+    "rest_time": null,
+    "total_time": 15,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "poulet",
+      "champignons"
+    ],
+    "created": "2026-09-13T10:09",
+    "updated": "2026-09-13T10:10"
+  },
+  {
     "id": "pop-corn-sucre-a-la-poele",
     "title": "Pop-corn sucré à la poêle",
     "description": "Le pop-corn sucré à la poêle, les grains éclatant directement dans un caramel d'eau, de sucre et d'huile.",
@@ -691,6 +714,30 @@
     ],
     "created": "2026-08-31T18:19",
     "updated": "2026-08-31T18:19"
+  },
+  {
+    "id": "riz-cantonais-facile",
+    "title": "Riz cantonais facile",
+    "description": "La version Marmiton, simple et rapide, aux crevettes et au jambon.",
+    "categories": [
+      "Plat"
+    ],
+    "servings": "4",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 20,
+    "cook_time": 30,
+    "rest_time": null,
+    "total_time": 50,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "riz",
+      "crevettes",
+      "jambon"
+    ],
+    "created": "2026-09-13T10:09",
+    "updated": "2026-09-13T10:10"
   },
   {
     "id": "rougail-saucisse",
