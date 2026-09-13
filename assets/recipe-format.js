@@ -357,39 +357,92 @@ export function parseFrontmatter(raw) {
   return { meta, body: match[2] || '' };
 }
 
+// Une fiche est une recette, ou un mémo : un aide-mémoire en tableaux (temps de
+// cuisson au barbecue) qui n'a ni portions, ni ingrédients à acheter.
+export function normalizeType(value) {
+  const raw = String(value == null ? '' : value).trim().toLowerCase();
+  return raw === 'memo' || raw === 'mémo' ? 'memo' : 'recipe';
+}
+
+// Ligne de tableau Markdown : "| a | b |" -> ["a", "b"].
+function splitTableRow(line) {
+  return line.replace(/^\|/, '').replace(/\|$/, '').split('|').map(cell => cell.trim());
+}
+
+const TABLE_SEPARATOR_RE = /^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?$/;
+
+// Le contenu d'une section libre, dans l'ordre : paragraphes et tableaux. Une
+// case peut porter un minuteur, avec la même écriture qu'une étape : "{8 min}".
+function parseBlocks(lines) {
+  const blocks = [];
+  let text = [];
+  let table = null;
+  const flushText = () => {
+    if (text.length) blocks.push({ kind: 'text', text: text.join('\n') });
+    text = [];
+  };
+  for (const line of lines) {
+    if (line.startsWith('|')) {
+      flushText();
+      if (!table) {
+        table = { kind: 'table', headers: splitTableRow(line), rows: [] };
+        blocks.push(table);
+      } else if (!TABLE_SEPARATOR_RE.test(line)) {
+        table.rows.push(splitTableRow(line).map(splitStepDuration));
+      }
+      continue;
+    }
+    table = null;
+    if (line) text.push(line);
+    else flushText();
+  }
+  flushText();
+  return blocks;
+}
+
 export function parseRecipeSections(body) {
   const lines = body.split('\n');
   let section = null;
   const ingredientsRaw = [];
   const stepsRaw = [];
   const notesRaw = [];
+  const free = [];
   for (const raw of lines) {
     const line = raw.trim();
     if (/^#{1,3}\s*ingr[ée]dients/i.test(line)) { section = 'ing'; continue; }
     if (/^#{1,3}\s*[ée]tapes/i.test(line)) { section = 'steps'; continue; }
     if (/^#{1,3}\s*notes/i.test(line)) { section = 'notes'; continue; }
-    if (/^#{1,3}\s/.test(line)) { section = null; continue; }
-    if (!line && section !== 'notes') continue;
+    // Tout autre titre ouvre une section libre, affichée telle quelle.
+    if (/^#{1,3}\s/.test(line)) {
+      section = 'free';
+      free.push({ title: line.replace(/^#{1,3}\s*/, ''), lines: [] });
+      continue;
+    }
+    if (!line && section !== 'notes' && section !== 'free') continue;
     if (section === 'ing') {
       ingredientsRaw.push(line.replace(/^[-*]\s*/, ''));
     } else if (section === 'steps') {
       stepsRaw.push(splitStepDuration(line.replace(/^(\d+[.)]|[-*])\s*/, '')));
     } else if (section === 'notes') {
       notesRaw.push(line);
+    } else if (section === 'free') {
+      free[free.length - 1].lines.push(line);
     }
   }
   return {
     ingredients: ingredientsRaw.map(parseAmountUnit),
     steps: stepsRaw,
     notes: notesRaw.join('\n').trim(),
+    sections: free.map(s => ({ title: s.title, blocks: parseBlocks(s.lines) })),
   };
 }
 
 export function parseRecipeMarkdown(raw) {
   const { meta, body } = parseFrontmatter(raw);
-  const { ingredients, steps, notes } = parseRecipeSections(body);
+  const { ingredients, steps, notes, sections } = parseRecipeSections(body);
   return {
     id: meta.id || '',
+    type: normalizeType(meta.type),
     title: meta.title || '',
     description: meta.description || '',
     categories: normalizeCategories(meta.categories != null ? meta.categories : meta.category),
@@ -408,6 +461,7 @@ export function parseRecipeMarkdown(raw) {
     ingredients,
     steps,
     notes,
+    sections,
   };
 }
 

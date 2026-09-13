@@ -54,6 +54,11 @@ chargement de `data/index.json` et des `.md`. Toujours passer par `npm run dev`.
   couper en deux étapes, une par durée.
 - **`_staging/` est gitignoré** (sauf `.gitkeep`) : rien de ce qui y est déposé ne
   part sur GitHub, et c'est voulu.
+- **Un mémo (`type: memo`) s'écrit à la main** : tableaux de repères dans des
+  sections `##` libres, sans portions ni ingrédients (voir README). Il ne passe
+  pas par l'extraction, qui refuse de l'écraser. Ses chiffres suivent la même
+  règle que les temps de cuisson : jamais estimés, toujours sourcés dans ses
+  `## Notes`.
 - Une ré-extraction **ne doit pas écraser** ce qui a été saisi à la main :
   description, temps, `mold`, `status`, `main_ingredients` d'une fiche existante
   sont préservés quand la source est muette.

@@ -153,6 +153,7 @@ a{color:inherit;text-decoration:none;}
 .tag-untried{background:var(--neutral-bg);color:var(--ink-soft);}
 .tag.time{background:var(--time-bg);color:var(--time-fg);font-variant-numeric:tabular-nums;}
 .tag.new{background:var(--basil);color:var(--on-accent);font-weight:600;}
+.tag.memo{background:var(--time-bg);color:var(--time-fg);}
 .mark{flex:none;font-size:15px;line-height:1;}
 .mark.favorite{color:var(--rust);}
 .mark.classic{color:var(--gold);}
@@ -178,6 +179,15 @@ a{color:inherit;text-decoration:none;}
 
 .sourcelink{display:inline-block;margin-top:18px;font-size:13px;color:var(--basil-dark);}
 .notes{font-size:14px;line-height:1.55;color:var(--ink-soft);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;max-width:560px;white-space:pre-wrap;}
+/* Mémo : tableaux de repères. Le cadre défile en largeur sur téléphone, la page
+   ne s'élargit pas. Le minuteur passe sous le texte de sa case. */
+.memo-text{font-size:14px;line-height:1.55;color:var(--ink-soft);max-width:560px;margin:0 0 10px;white-space:pre-wrap;}
+.table-wrap{overflow-x:auto;max-width:720px;margin-bottom:10px;}
+.memo-table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums;}
+.memo-table th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);font-weight:600;padding:6px 10px 6px 0;border-bottom:1px solid var(--line);}
+.memo-table td{padding:7px 10px 7px 0;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.4;}
+.memo-table td:first-child{font-weight:600;}
+.memo-table .step-timer{display:flex;margin:4px 0 0;}
 .dates{margin-top:22px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-soft);}
 
 /* Temps de la recette */
@@ -317,6 +327,11 @@ a{color:inherit;text-decoration:none;}
      libellé du bouton, qui vaudrait « ⏸ 12:04 » sur un minuteur en cours. */
   .timer{border:0;background:none;padding:0;min-width:0;font-size:0;color:var(--ink-soft);}
   .timer::after{content:"— " attr(data-minutes);font-size:10pt;font-weight:400;}
+  /* Dans un mémo, la case dit déjà la durée en toutes lettres (« 4 à 6 min ») :
+     le minuteur la répéterait. Le tableau s'imprime en entier, sans défilement. */
+  .memo-table .step-timer{display:none;}
+  .table-wrap{overflow:visible;max-width:none;}
+  .memo-table tr{break-inside:avoid;}
 
   /* Cases à cocher : sur la liste de courses, ce sont elles qu'on coche dans les
      rayons. Sans print-color-adjust, celles déjà cochées sortiraient vides. */

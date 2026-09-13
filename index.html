@@ -266,6 +266,7 @@ function render(){
       ${r.description?`<div class="desc">${escapeHtml(r.description)}</div>`:''}
       <div class="tags">
         ${isRecent(r.created)?'<span class="tag new">nouveau</span>':''}
+        ${r.type==='memo'?'<span class="tag memo">mémo</span>':''}
         ${(r.categories||[]).map(c=>`<span class="tag">${escapeHtml(c)}</span>`).join('')}
         ${r.servings?`<span class="tag rust">${escapeHtml(formatYield(r.servings, r.yield_label))}</span>`:''}
         ${r.total_time?`<span class="tag time">⏱ ${escapeHtml(formatDuration(r.total_time))}</span>`:''}

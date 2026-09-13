@@ -390,6 +390,48 @@ texte plutôt que supprimée.
 (« enfourner 15 min à 200°C, puis 1 h à 100°C ») en perd forcément une : coupe-la
 en deux étapes, une par durée, pour avoir les deux minuteurs.
 
+## Les mémos
+
+Une fiche peut aussi être un **aide-mémoire** plutôt qu'une recette : les temps
+de cuisson au barbecue, par exemple. Elle n'a ni portions, ni ingrédients à
+acheter, ni étapes à suivre dans l'ordre, mais des tableaux de repères.
+`type: memo` dans le frontmatter suffit :
+
+```markdown
+---
+id: temps-de-cuisson-au-barbecue
+type: memo
+title: Temps de cuisson au barbecue
+description: Les temps sur la grille et les températures à cœur.
+categories: [Plat]
+servings: 
+status: none
+main_ingredients: []
+created: 2026-09-13T10:27
+---
+
+## Porc
+Texte libre avant ou après le tableau.
+
+| Morceau | Épaisseur | Feu | Temps |
+|---|---|---|---|
+| Côte | 2 cm | moyen | 6 à 8 min {6 min} |
+
+## Notes
+Sources, conseils.
+```
+
+- Tout titre `##` autre que `Ingrédients`, `Étapes` et `Notes` ouvre une
+  **section libre** : paragraphes et tableaux Markdown, affichés dans l'ordre.
+- Un `{durée}` en fin de case devient un **minuteur cliquable**, comme sur une
+  étape. Il n'est pas imprimé : la case dit déjà la durée en toutes lettres.
+- Sur la fiche, pas de barre de portions ni de « Vérifier les ingrédients ».
+  Sur l'accueil, la carte porte un badge `mémo`. La liste de courses ne propose
+  pas les mémos.
+- `servings` n'est pas demandé : `build-index` ne le réclame pas pour un mémo.
+- Un mémo s'écrit **à la main**. `extract-recipe.js` refuse d'écraser un mémo
+  existant, car la réécriture au format recette effacerait ses tableaux.
+
 ## Retrouver les recettes récentes
 
 L'accueil propose deux tris, à droite de la barre d'outils :

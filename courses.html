@@ -135,7 +135,9 @@ function renderSuggestions(){
     return;
   }
   const q = query.toLowerCase().trim();
+  // Un mémo n'a rien à acheter : il ne se propose pas.
   const available = recipes
+    .filter(r => r.type !== 'memo')
     .filter(r => !Object.prototype.hasOwnProperty.call(selection, r.id))
     .filter(r => !q || (r.title + ' ' + (r.main_ingredients||[]).join(' ')).toLowerCase().includes(q));
 

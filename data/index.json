@@ -1,6 +1,7 @@
 [
   {
     "id": "cake-a-la-banane-banana-bread",
+    "type": "recipe",
     "title": "Cake à la banane (banana bread)",
     "description": "Un cake moelleux aux bananes bien mûres, qui cuit doucement une heure à four bas.",
     "categories": [
@@ -23,6 +24,7 @@
   },
   {
     "id": "cake-au-citron",
+    "type": "recipe",
     "title": "Cake au citron",
     "description": "Un cake au citron moelleux, parfumé au zeste et au jus d'un citron entier.",
     "categories": [
@@ -45,6 +47,7 @@
   },
   {
     "id": "cake-aux-amandes-et-a-la-mascarpone",
+    "type": "recipe",
     "title": "Cake aux amandes et à la mascarpone",
     "description": "Un cake à la mascarpone et aux amandes, couvert d'amandes effilées et de sucre en gros cristaux qui caramélise.",
     "categories": [
@@ -68,6 +71,7 @@
   },
   {
     "id": "cake-courgette-chocolat",
+    "type": "recipe",
     "title": "Cake courgette-chocolat",
     "description": "Un cake ultra moelleux où la courgette se fond complètement dans le chocolat, sans laisser aucun goût de légume.",
     "categories": [
@@ -91,6 +95,7 @@
   },
   {
     "id": "cake-sale-courgette-bacon-et-emmental",
+    "type": "recipe",
     "title": "Cake salé courgette, bacon et emmental",
     "description": "Un cake salé moelleux, parfait pour un pique-nique ou un apéro dînatoire.",
     "categories": [
@@ -116,6 +121,7 @@
   },
   {
     "id": "caprice-des-dieux-pane",
+    "type": "recipe",
     "title": "Caprice des Dieux pané",
     "description": "Un fromage entier pané et passé au four, croustillant dehors et coulant à la découpe.",
     "categories": [
@@ -139,6 +145,7 @@
   },
   {
     "id": "cheesecake-speculoos",
+    "type": "recipe",
     "title": "Cheesecake spéculoos",
     "description": "Un cheesecake cuit au Philadelphia sur une base de spéculoos, nappé de pâte de spéculoos fondue.",
     "categories": [
@@ -162,6 +169,7 @@
   },
   {
     "id": "cote-de-boeuf-barbecue-au-gros-sel",
+    "type": "recipe",
     "title": "Côte de boeuf barbecue au gros sel",
     "description": "La côte de boeuf au barbecue, salée au gros sel avant cuisson puis badigeonnée d'huile d'olive et d'herbes.",
     "categories": [
@@ -184,6 +192,7 @@
   },
   {
     "id": "cotes-de-porc-marinade-sauce-barbecue",
+    "type": "recipe",
     "title": "Côtes de porc marinade sauce barbecue",
     "description": "Marinade express pour côtes de porc au barbecue.",
     "categories": [
@@ -208,6 +217,7 @@
   },
   {
     "id": "cotes-echine-de-porc-marinees-facon-asiatique",
+    "type": "recipe",
     "title": "Côtes échine de porc marinées façon asiatique",
     "description": "Une marinade laquée au soja, gingembre et miel pour des côtes fondantes et caramélisées.",
     "categories": [
@@ -233,6 +243,7 @@
   },
   {
     "id": "crepes-d-hiver",
+    "type": "recipe",
     "title": "Crêpes d'hiver",
     "description": "La pâte à crêpes de la maison, parfumée au rhum et au beurre fondu.",
     "categories": [
@@ -258,6 +269,7 @@
   },
   {
     "id": "croque-monsieur",
+    "type": "recipe",
     "title": "Croque-monsieur",
     "description": "Les croque-monsieur au four, gratinés sous le grill avec un mélange de gruyère au lait et à la muscade.",
     "categories": [
@@ -282,6 +294,7 @@
   },
   {
     "id": "cuisses-de-poulet-au-barbecue",
+    "type": "recipe",
     "title": "Cuisses de poulet au barbecue",
     "description": "Cuisses de poulet marinées, grillées au barbecue avec une sauce bien caramélisée.",
     "categories": [
@@ -305,6 +318,7 @@
   },
   {
     "id": "cuisses-de-poulet-roties-a-l-ail-et-aux-herbes",
+    "type": "recipe",
     "title": "Cuisses de poulet rôties à l'ail et aux herbes",
     "description": "Des cuisses de poulet dorées, croustillantes et parfumées — un classique inratable.",
     "categories": [
@@ -330,6 +344,7 @@
   },
   {
     "id": "galettes-de-courgettes-sauce-skyr-ail",
+    "type": "recipe",
     "title": "Galettes de courgettes, sauce skyr-ail",
     "description": "Des galettes de courgettes croustillantes accompagnées d'une sauce fraîche au skyr et à l'ail.",
     "categories": [
@@ -355,6 +370,7 @@
   },
   {
     "id": "gateau-au-yaourt-ameliore-au-skyr",
+    "type": "recipe",
     "title": "Gâteau au yaourt amélioré au skyr",
     "description": "Le classique gâteau au yaourt revisité avec du skyr, du beurre fondu et un zeste de citron.",
     "categories": [
@@ -378,6 +394,7 @@
   },
   {
     "id": "gateau-fin-a-la-rhubarbe",
+    "type": "recipe",
     "title": "Gâteau fin à la rhubarbe",
     "description": "Un gâteau fin cuit en moule à tarte, où la rhubarbe sucrée à l'avance fond dans la pâte.",
     "categories": [
@@ -400,6 +417,7 @@
   },
   {
     "id": "gateau-fondant-aux-poires",
+    "type": "recipe",
     "title": "Gâteau fondant aux poires",
     "description": "Un gâteau aux poires en deux couches de pâte, nappé en fin de cuisson d'un mélange beurre-oeuf-sucre qui le rend fondant.",
     "categories": [
@@ -422,6 +440,7 @@
   },
   {
     "id": "gateau-fondant-mortel-au-chocolat-et-ses-8-oeufs",
+    "type": "recipe",
     "title": "Gâteau fondant mortel au chocolat et ses 8 oeufs",
     "description": "Vous cherchez une recette pour écouler beaucoup d'œufs ? Vous êtes plus sucré que salé ? Vous avez trouvé ! Voici un gâteau ultra fondant avec 8 œufs. Un dessert rapide et onctueux dont on aurait tort de se passer !",
     "categories": [
@@ -445,6 +464,7 @@
   },
   {
     "id": "gateau-moelleux-au-citron-facile-et-intense",
+    "type": "recipe",
     "title": "Gâteau moelleux au citron facile et intense",
     "description": "Un gâteau au citron d'un seul saladier, bien parfumé par le jus et le zeste de deux citrons.",
     "categories": [
@@ -467,6 +487,7 @@
   },
   {
     "id": "gaufres-moelleuses",
+    "type": "recipe",
     "title": "Gaufres moelleuses",
     "description": "Des gaufres dorées, croustillantes à l'extérieur et fondantes à l'intérieur.",
     "categories": [
@@ -491,6 +512,7 @@
   },
   {
     "id": "pate-a-pizza-epaisse-et-moelleuse",
+    "type": "recipe",
     "title": "Pâte à pizza épaisse et moelleuse",
     "description": "Une pâte à pizza levée une heure, épaisse et moelleuse, de quoi faire deux pizzas de la taille de la plaque du four.",
     "categories": [
@@ -511,6 +533,7 @@
   },
   {
     "id": "pate-brisee",
+    "type": "recipe",
     "title": "Pâte brisée",
     "description": "La pâte brisée maison au beurre, pour les quiches et les tartes, salées comme sucrées.",
     "categories": [
@@ -532,6 +555,7 @@
   },
   {
     "id": "pate-de-haricots-azuki-anko",
+    "type": "recipe",
     "title": "Pâte de haricots azuki (Anko)",
     "description": "Pâte sucrée de haricots rouges azuki, parfaite pour garnir des gaufres, crêpes ou pain.",
     "categories": [
@@ -554,6 +578,7 @@
   },
   {
     "id": "pate-sablee-pour-tarte-sucree",
+    "type": "recipe",
     "title": "Pâte sablée pour tarte sucrée",
     "description": "Une pâte sablée croustillante et fondante, idéale pour toutes vos tartes sucrées.",
     "categories": [
@@ -574,6 +599,7 @@
   },
   {
     "id": "poelee-de-poulet-a-la-creme-et-aux-champignons",
+    "type": "recipe",
     "title": "Poêlée de poulet à la crème et aux champignons",
     "description": "Une version douce et gourmande, sans moutarde.",
     "categories": [
@@ -597,6 +623,7 @@
   },
   {
     "id": "pop-corn-sucre-a-la-poele",
+    "type": "recipe",
     "title": "Pop-corn sucré à la poêle",
     "description": "Le pop-corn sucré à la poêle, les grains éclatant directement dans un caramel d'eau, de sucre et d'huile.",
     "categories": [
@@ -620,6 +647,7 @@
   },
   {
     "id": "quiche-lorraine-traditionnelle",
+    "type": "recipe",
     "title": "Quiche Lorraine traditionnelle",
     "description": "La quiche lorraine classique, avec une pâte brisée maison au beurre, de la crème fraîche épaisse et des lardons fumés.",
     "categories": [
@@ -645,6 +673,7 @@
   },
   {
     "id": "ratatouille-traditionnelle",
+    "type": "recipe",
     "title": "Ratatouille traditionnelle",
     "description": "Un classique de la cuisine provençale, mijoté à base de légumes d'été.",
     "categories": [
@@ -670,6 +699,7 @@
   },
   {
     "id": "risotto-poulet-courgette",
+    "type": "recipe",
     "title": "Risotto poulet-courgette",
     "description": "Un risotto crémeux au poulet doré et à la courgette, parfumé au parmesan.",
     "categories": [
@@ -693,6 +723,7 @@
   },
   {
     "id": "riz-cantonais-riz-frit",
+    "type": "recipe",
     "title": "Riz Cantonais (Riz Frit)",
     "description": "Un classique de la cuisine chinoise, rapide et parfait pour recycler du riz cuit de la veille.",
     "categories": [
@@ -717,6 +748,7 @@
   },
   {
     "id": "riz-cantonais-facile",
+    "type": "recipe",
     "title": "Riz cantonais facile",
     "description": "La version Marmiton, simple et rapide, aux crevettes et au jambon.",
     "categories": [
@@ -741,6 +773,7 @@
   },
   {
     "id": "rougail-saucisse",
+    "type": "recipe",
     "title": "Rougail saucisse",
     "description": "Le plat réunionnais : des saucisses fumées mijotées dans une sauce tomate relevée au curcuma et au piment.",
     "categories": [
@@ -765,6 +798,7 @@
   },
   {
     "id": "sauce-fromagere-pour-tacos",
+    "type": "recipe",
     "title": "Sauce fromagère pour tacos",
     "description": "La sauce fromagère des French tacos, au cheddar et à l'emmental fondus dans la crème.",
     "categories": [
@@ -789,6 +823,7 @@
   },
   {
     "id": "spaghettis-a-la-creme-et-aux-lardons",
+    "type": "recipe",
     "title": "Spaghettis à la crème et aux lardons",
     "description": "Un plat rapide, réconfortant et savoureux — prêt en moins de 20 minutes.",
     "categories": [
@@ -813,6 +848,7 @@
   },
   {
     "id": "tarte-a-gros-bords-nord-de-la-france",
+    "type": "recipe",
     "title": "Tarte à gros bords (nord de la France)",
     "description": "La tarte du Nord à pâte levée et gros bords, garnie d'une crème pâtissière à la vanille.",
     "categories": [
@@ -833,6 +869,7 @@
   },
   {
     "id": "tarte-a-la-saucisse-de-francfort-et-aux-pommes-de-terre",
+    "type": "recipe",
     "title": "Tarte à la saucisse de Francfort et aux pommes de terre",
     "description": "Une tarte aux saucisses de Francfort et aux pommes de terre, à la manière d'une quiche.",
     "categories": [
@@ -856,6 +893,7 @@
   },
   {
     "id": "tarte-aux-mirabelles",
+    "type": "recipe",
     "title": "Tarte aux mirabelles",
     "description": "Une tarte simple et gourmande qui met en valeur la mirabelle bien mûre, avec un appareil crémeux à la crème et aux amandes.",
     "categories": [
@@ -878,6 +916,7 @@
   },
   {
     "id": "tarte-aux-quetsches-d-alsace",
+    "type": "recipe",
     "title": "Tarte aux Quetsches d'Alsace",
     "description": "La tarte alsacienne aux quetsches, dont le fond est saupoudré de semoule fine pour absorber le jus.",
     "categories": [
@@ -900,6 +939,7 @@
   },
   {
     "id": "tarte-salee-lardons-tomates-et-courgettes",
+    "type": "recipe",
     "title": "Tarte salée lardons, tomates et courgettes",
     "description": "Une tarte gourmande et facile, parfaite pour un dîner léger ou un pique-nique.",
     "categories": [
@@ -924,6 +964,7 @@
   },
   {
     "id": "tartiflette",
+    "type": "recipe",
     "title": "Tartiflette",
     "description": "La tartiflette savoyarde : pommes de terre rissolées aux lardons et aux oignons, gratinées sous un reblochon entier.",
     "categories": [
@@ -947,7 +988,29 @@
     "updated": "2026-08-31T12:23"
   },
   {
+    "id": "temps-de-cuisson-au-barbecue",
+    "type": "memo",
+    "title": "Temps de cuisson au barbecue",
+    "description": "Bœuf, veau, agneau, porc et volaille : les temps sur la grille et les températures à cœur.",
+    "categories": [
+      "Plat"
+    ],
+    "servings": "",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": null,
+    "cook_time": null,
+    "rest_time": null,
+    "total_time": null,
+    "status": "none",
+    "needs_review": false,
+    "main_ingredients": [],
+    "created": "2026-09-13T10:27",
+    "updated": "2026-09-13T10:28"
+  },
+  {
     "id": "tian-de-legumes-provencal",
+    "type": "recipe",
     "title": "Tian de légumes provençal",
     "description": "Un gratin provençal coloré aux courgettes, tomates et carottes, parfumé aux herbes de Provence.",
     "categories": [
@@ -972,6 +1035,7 @@
   },
   {
     "id": "tiramisu-recette-originale",
+    "type": "recipe",
     "title": "Tiramisu (recette originale)",
     "description": "Le tiramisu classique : biscuits à la cuillère imbibés de café, crème au mascarpone et cacao amer.",
     "categories": [
@@ -996,6 +1060,7 @@
   },
   {
     "id": "tiramisu-au-speculoos",
+    "type": "recipe",
     "title": "Tiramisu au Spéculoos",
     "description": "Version gourmande du tiramisu classique, avec le goût épicé et caramélisé des spéculoos.",
     "categories": [

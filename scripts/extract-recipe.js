@@ -28,6 +28,7 @@ import {
   stringifyRecipeMarkdown,
   normalizeCategories,
   normalizeStatus,
+  normalizeType,
   STATUS_VALUES,
   formatYield,
   splitStepDuration,
@@ -442,6 +443,7 @@ function updateIndex(recipe) {
   index = index.filter(r => r.id !== recipe.id);
   index.push({
     id: recipe.id,
+    type: 'recipe',
     title: recipe.title,
     description: recipe.description,
     categories: recipe.categories,
@@ -487,6 +489,11 @@ async function processFile(filePath, options, sourceUrl = '') {
   if (!data.title) data.title = path.basename(filePath, ext);
 
   const previous = existingMeta(slugify(data.title));
+  // Un mémo s'écrit à la main : la réécriture au format recette effacerait ses tableaux.
+  if (normalizeType(previous.type) === 'memo') {
+    console.log(`[✗] ${path.basename(filePath)} : data/recipes/${slugify(data.title)}.md est un mémo, il ne s'écrase pas.`);
+    return null;
+  }
   const servings = await resolveServings(data, options.servings, path.basename(filePath), previous);
   if (!servings) {
     console.log(`[✗] ${path.basename(filePath)} : nombre de personnes introuvable dans la source.`);

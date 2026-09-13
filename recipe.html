@@ -246,22 +246,33 @@ function clock(seconds){
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
-// data-minutes n'est lu qu'à l'impression : la durée de l'étape ne vit nulle
-// part ailleurs dans le DOM, splitStepDuration l'ayant retirée du texte.
-function timerButton(index, minutes){
-  return `<button class="timer" data-step="${index}" data-minutes="${escapeHtml(formatDuration(minutes))}" type="button"></button>`
-    + `<button class="timer-reset" data-reset="${index}" type="button" title="Réinitialiser">↺</button>`;
+// Un minuteur est identifié par une clé : le numéro de l'étape, ou
+// « c<section>-<tableau>-<ligne>-<colonne> » pour une case de tableau d'un mémo.
+function isStepTimer(key){
+  return /^\d+$/.test(String(key));
 }
 
-function paintTimer(index){
-  const btn = document.querySelector(`.timer[data-step="${index}"]`);
+function timerMinutes(key){
+  const cell = /^c(\d+)-(\d+)-(\d+)-(\d+)$/.exec(key);
+  if(cell) return recipe.sections[cell[1]].blocks[cell[2]].rows[cell[3]][cell[4]].minutes;
+  return recipe.steps[key].minutes;
+}
+
+// data-minutes n'est lu qu'à l'impression : la durée de l'étape ne vit nulle
+// part ailleurs dans le DOM, splitStepDuration l'ayant retirée du texte.
+function timerButton(key, minutes){
+  return `<button class="timer" data-timer="${key}" data-minutes="${escapeHtml(formatDuration(minutes))}" type="button"></button>`
+    + `<button class="timer-reset" data-reset="${key}" type="button" title="Réinitialiser">↺</button>`;
+}
+
+function paintTimer(key){
+  const btn = document.querySelector(`.timer[data-timer="${key}"]`);
   if(!btn) return;
-  const step = recipe.steps[index];
-  const t = timers[index];
-  const reset = document.querySelector(`.timer-reset[data-reset="${index}"]`);
+  const t = timers[key];
+  const reset = document.querySelector(`.timer-reset[data-reset="${key}"]`);
 
   if(!t){
-    btn.textContent = `▶ ${formatDuration(step.minutes)}`;
+    btn.textContent = `▶ ${formatDuration(timerMinutes(key))}`;
     btn.className = 'timer';
     if(reset) reset.hidden = true;
     return;
@@ -277,7 +288,7 @@ function paintTimer(index){
 }
 
 function paintAllTimers(){
-  (recipe.steps || []).forEach((step, i) => { if(step.minutes) paintTimer(i); });
+  document.querySelectorAll('.timer').forEach(btn => paintTimer(btn.dataset.timer));
 }
 
 let audio = null;
@@ -307,7 +318,7 @@ setInterval(() => {
     if(t.remaining <= 0){
       t.running = false;
       beep();
-      markStep(index, true);
+      if(isStepTimer(index)) markStep(index, true);
     }
     paintTimer(index);
   });
@@ -334,11 +345,10 @@ document.getElementById('content').addEventListener('click', event => {
   }
   const start = event.target.closest('.timer');
   if(start){
-    const index = start.dataset.step;
-    const step = recipe.steps[index];
+    const index = start.dataset.timer;
     if(!timers[index] || timers[index].remaining <= 0){
-      timers[index] = { remaining: step.minutes * 60, running: true };
-      markStep(index, false);
+      timers[index] = { remaining: timerMinutes(index) * 60, running: true };
+      if(isStepTimer(index)) markStep(index, false);
     } else {
       timers[index].running = !timers[index].running;
     }
@@ -349,24 +359,34 @@ document.getElementById('content').addEventListener('click', event => {
   if(reset){
     const index = reset.dataset.reset;
     delete timers[index];
-    markStep(index, false);
+    if(isStepTimer(index)) markStep(index, false);
     paintTimer(index);
   }
 });
 
-function render(){
-  const r = recipe;
-  const st = STATUS_META[r.status] || STATUS_META.none;
+// Sections libres : paragraphes et tableaux, dans l'ordre du fichier. Un tableau
+// large défile dans son cadre plutôt que d'élargir la page sur téléphone.
+function sectionsHtml(r){
+  return (r.sections || []).map((section, s) => `
+    <div class="section-label">${escapeHtml(section.title)}</div>
+    ${section.blocks.map((block, b) => block.kind === 'text'
+      ? `<p class="memo-text">${escapeHtml(block.text)}</p>`
+      : `<div class="table-wrap"><table class="memo-table">
+          <thead><tr>${block.headers.map(h=>`<th>${escapeHtml(h)}</th>`).join('')}</tr></thead>
+          <tbody>${block.rows.map((row, i)=>`<tr>${row.map((cell, c)=>
+            `<td>${escapeHtml(cell.text)}${cell.minutes?`<span class="step-timer">${timerButton(`c${s}-${b}-${i}-${c}`, cell.minutes)}</span>`:''}</td>`
+          ).join('')}</tr>`).join('')}</tbody>
+        </table></div>`
+    ).join('')}
+  `).join('');
+}
+
+// Un mémo n'a ni portions ni ingrédients : ni barre de portions, ni
+// vérification du placard, ni étapes à cocher.
+function recipeBody(r){
   const base = parseFloat(r.servings) || 4;
   const factor = servings / base;
-  document.getElementById('content').innerHTML = `
-    <h2>${escapeHtml(r.title)} <span class="mark ${escapeHtml(r.status)}">${st.icon}</span></h2>
-    ${r.description?`<div class="desc">${escapeHtml(r.description)}</div>`:''}
-    <div class="tags">
-      ${r.categories.map(c=>`<span class="tag">${escapeHtml(c)}</span>`).join('')}
-      ${st.label?`<span class="tag tag-${escapeHtml(r.status)}">${st.label}</span>`:''}
-    </div>
-    ${timesBar(r)}
+  return `
     <div class="servingsbar">
       <button onclick="changeServings(-1)">−</button>
       <span>${escapeHtml(formatYield(Math.round(servings), r.yield_label))}</span>
@@ -393,6 +413,23 @@ function render(){
       `<li><button class="step-mark" type="button" data-step="${i}" aria-pressed="false"></button>`
       + `${escapeHtml(s.text)}${s.minutes?`<span class="step-timer">${timerButton(i, s.minutes)}</span>`:''}</li>`
     ).join('')}</ol>
+  `;
+}
+
+function render(){
+  const r = recipe;
+  const st = STATUS_META[r.status] || STATUS_META.none;
+  document.getElementById('content').innerHTML = `
+    <h2>${escapeHtml(r.title)} <span class="mark ${escapeHtml(r.status)}">${st.icon}</span></h2>
+    ${r.description?`<div class="desc">${escapeHtml(r.description)}</div>`:''}
+    <div class="tags">
+      ${r.type==='memo'?'<span class="tag memo">mémo</span>':''}
+      ${r.categories.map(c=>`<span class="tag">${escapeHtml(c)}</span>`).join('')}
+      ${st.label?`<span class="tag tag-${escapeHtml(r.status)}">${st.label}</span>`:''}
+    </div>
+    ${timesBar(r)}
+    ${r.type==='memo'?'':recipeBody(r)}
+    ${sectionsHtml(r)}
     ${r.notes?`<div class="section-label">Notes</div><div class="notes">${escapeHtml(r.notes)}</div>`:''}
     ${r.source_url?`<a class="sourcelink" href="${escapeHtml(r.source_url)}" target="_blank" rel="noopener">Source originale ↗</a>`:''}
     ${dateLine(r)}

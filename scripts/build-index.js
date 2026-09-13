@@ -142,13 +142,15 @@ function main() {
 
     const r = parseRecipeMarkdown(raw);
     const missing = [];
-    if (!r.servings) missing.push('servings');
+    // Un mémo ne se compte pas en portions.
+    if (!r.servings && r.type !== 'memo') missing.push('servings');
     if (missing.length) {
       console.log(`⚠ ${f} : champ(s) manquant(s) -> ${missing.join(', ')}`);
     }
 
     return {
       id: r.id || path.basename(f, '.md'),
+      type: r.type,
       title: r.title,
       description: r.description,
       categories: r.categories,
