@@ -18,8 +18,22 @@
   </div>
 </div>
 
+<!-- Hors de #content : render() remplace tout son contenu, le panneau ouvert
+     disparaîtrait avec. -->
+<button id="ing-fab" class="ing-fab" type="button" hidden>Ingrédients</button>
+<dialog id="ing-sheet" class="sheet" aria-labelledby="ing-sheet-title">
+  <div class="sheet-inner">
+    <div class="sheet-head">
+      <span class="section-label" id="ing-sheet-title">Ingrédients</span>
+      <button class="sheet-close" type="button" aria-label="Fermer">✕</button>
+    </div>
+    <div id="ing-sheet-body"></div>
+  </div>
+</dialog>
+
 <script type="module">
 import { parseRecipeMarkdown, formatYield, formatDuration, STATUS_META, ingredientLabel, isOptionalIngredient, parseStamp } from './assets/recipe-format.js';
+import { stepIngredients } from './assets/step-ingredients.js';
 
 function escapeHtml(s){
   const d = document.createElement('div');
@@ -45,6 +59,12 @@ let checked = new Set();
 // repart de zéro.
 const STEPS_TTL = 6 * 3600 * 1000;
 let doneSteps = new Set();
+
+// Ingrédients cités par chaque étape (index dans recipe.ingredients), et
+// l'inverse : les étapes qui citent chaque ingrédient. Calculés une fois au
+// chargement, la recette ne change plus ensuite.
+let stepIngs = [];
+let stepsOfIng = [];
 
 function storageKey(){
   return 'mes-recettes:check:' + (recipe ? recipe.id : '');
@@ -114,6 +134,9 @@ async function load(){
     const text = await res.text();
     recipe = parseRecipeMarkdown(text);
     servings = parseFloat(recipe.servings) || 4;
+    stepIngs = stepIngredients(recipe);
+    stepsOfIng = recipe.ingredients.map((ing, k) =>
+      stepIngs.flatMap((list, i) => list.includes(k) ? [i] : []));
     await loadSeeAlso();
     loadChecked();
     loadDoneSteps();
@@ -230,6 +253,24 @@ function paintSteps(){
   });
   const bar = document.querySelector('.stepbar');
   if(bar) bar.outerHTML = stepBar(recipe);
+  paintUsedIngredients();
+}
+
+// Un ingrédient est grisé quand toutes les étapes qui le citent sont faites :
+// le beurre de la pâte et celui de la garniture restent visibles jusqu'à la
+// seconde. Un ingrédient qu'aucune étape ne cite n'est jamais grisé.
+function isUsed(k){
+  const steps = stepsOfIng[k] || [];
+  return steps.length > 0 && steps.every(i => doneSteps.has(String(i)));
+}
+
+function paintUsedIngredients(){
+  document.querySelectorAll('.ing-row[data-row]').forEach(row => {
+    const used = isUsed(Number(row.dataset.row));
+    row.classList.toggle('used', used);
+    if(used) row.title = 'Déjà utilisé dans les étapes faites';
+    else row.removeAttribute('title');
+  });
 }
 
 function markStep(index, done){
@@ -406,9 +447,28 @@ function sectionsHtml(r){
 
 // Un mémo n'a ni portions ni ingrédients : ni barre de portions, ni
 // vérification du placard, ni étapes à cocher.
+// Quantité ajustée aux portions choisies, déjà échappée.
+function qtyHtml(ing){
+  const factor = servings / (parseFloat(recipe.servings) || 4);
+  const amt = ing.amount ? (Math.round(ing.amount*factor*100)/100) : '';
+  return `${amt}${ing.unit?(' '+escapeHtml(ing.unit)):''}`;
+}
+
+function plainIngRow(ing, i){
+  return `<div class="ing-row" data-row="${i}"><span>${escapeHtml(ing.name)}</span><span>${qtyHtml(ing)}</span></div>`;
+}
+
+// Les quantités des ingrédients que l'étape cite, sous son texte. Un ingrédient
+// sans quantité (sel, poivre) n'apprendrait rien de plus que le texte : omis.
+function stepIngsHtml(i){
+  const items = (stepIngs[i] || [])
+    .map(k => recipe.ingredients[k])
+    .filter(ing => ing.amount || ing.unit)
+    .map(ing => `<span class="step-ing"><b>${qtyHtml(ing)}</b> ${escapeHtml(ingredientLabel(ing.name))}</span>`);
+  return items.length ? `<div class="step-ings">${items.join('')}</div>` : '';
+}
+
 function recipeBody(r){
-  const base = parseFloat(r.servings) || 4;
-  const factor = servings / base;
   return `
     <div class="servingsbar">
       <button onclick="changeServings(-1)">−</button>
@@ -417,27 +477,55 @@ function recipeBody(r){
     </div>
     <div class="section-label">Ingrédients</div>
     ${checkBar(r)}
-    ${r.ingredients.map((ing,i)=>{
-      const amt = ing.amount ? (Math.round(ing.amount*factor*100)/100) : '';
-      const qty = `${amt}${ing.unit?(' '+escapeHtml(ing.unit)):''}`;
+    <div class="ing-list">${r.ingredients.map((ing,i)=>{
+      if(!checkMode) return plainIngRow(ing, i);
       const optional = isOptionalIngredient(ing.name);
-      if(!checkMode){
-        return `<div class="ing-row"><span>${escapeHtml(ing.name)}</span><span>${qty}</span></div>`;
-      }
       const has = checked.has(String(i));
-      return `<label class="ing-row check ${has?'has':''}">`
+      return `<label class="ing-row check ${has?'has':''}" data-row="${i}">`
         + `<input type="checkbox" data-ing="${i}" ${has?'checked':''}>`
         + `<span class="ing-name">${escapeHtml(ingredientLabel(ing.name))}`
         + `${optional?'<span class="opt">optionnel</span>':''}</span>`
-        + `<span>${qty}</span></label>`;
-    }).join('')}
+        + `<span>${qtyHtml(ing)}</span></label>`;
+    }).join('')}</div>
     <div class="section-label steps-head"><span>Étapes</span>${stepBar(r)}</div>
     <ol class="steps">${r.steps.map((s,i)=>
       `<li><button class="step-mark" type="button" data-step="${i}" aria-pressed="false"></button>`
-      + `${escapeHtml(s.text)}${s.minutes?`<span class="step-timer">${timerButton(i, s.minutes)}</span>`:''}</li>`
+      + `${escapeHtml(s.text)}${s.minutes?`<span class="step-timer">${timerButton(i, s.minutes)}</span>`:''}`
+      + `${stepIngsHtml(i)}</li>`
     ).join('')}</ol>
   `;
 }
+
+// --- Panneau des ingrédients ---
+// En pleine préparation, la liste est loin au-dessus : un bouton flottant
+// l'ouvre par-dessus la page, sans perdre sa place dans les étapes. Il
+// apparaît dès que plus de la moitié de la liste est sortie par le haut : deux
+// lignes qui dépassent encore en haut de l'écran ne disent pas les quantités.
+
+const fab = document.getElementById('ing-fab');
+const sheet = document.getElementById('ing-sheet');
+
+function updateFab(){
+  const list = recipe && recipe.ingredients.length && document.querySelector('#content .ing-list');
+  if(!list){ fab.hidden = true; return; }
+  const box = list.getBoundingClientRect();
+  fab.hidden = box.bottom > Math.min(box.height, window.innerHeight) / 2;
+}
+window.addEventListener('scroll', updateFab, { passive: true });
+window.addEventListener('resize', updateFab);
+
+fab.addEventListener('click', () => {
+  document.getElementById('ing-sheet-title').textContent =
+    'Ingrédients · ' + formatYield(Math.round(servings), recipe.yield_label);
+  document.getElementById('ing-sheet-body').innerHTML =
+    recipe.ingredients.map(plainIngRow).join('');
+  paintUsedIngredients();
+  sheet.showModal();
+});
+
+sheet.querySelector('.sheet-close').addEventListener('click', () => sheet.close());
+// Un clic sur le fond assombri tombe sur le <dialog> lui-même, pas sur son contenu.
+sheet.addEventListener('click', event => { if(event.target === sheet) sheet.close(); });
 
 function render(){
   const r = recipe;
@@ -460,6 +548,7 @@ function render(){
   `;
   paintSteps();
   paintAllTimers();
+  updateFab();
 }
 
 load();

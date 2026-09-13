@@ -12,7 +12,8 @@ mes-recettes/
 ├── courses.html          liste de courses agrégée sur plusieurs recettes
 ├── style.css
 ├── assets/
-│   └── recipe-format.js  parseur Markdown+frontmatter partagé (navigateur + scripts)
+│   ├── recipe-format.js  parseur Markdown+frontmatter partagé (navigateur + scripts)
+│   └── step-ingredients.js  ingrédients cités par chaque étape (page recette)
 ├── data/
 │   ├── index.json         résumé léger de chaque recette (généré, ne pas éditer à la main)
 │   └── recipes/
@@ -459,6 +460,42 @@ L'accueil propose deux tris, à droite de la barre d'outils :
 
 Indépendamment du tri, une recette **ajoutée** depuis moins de 7 jours porte un
 badge vert `nouveau`, pour la repérer même en vue alphabétique.
+
+## En cuisine : les quantités à portée de main
+
+En pleine recette, sur téléphone, la liste des ingrédients est loin au-dessus de
+l'étape en cours. La fiche évite d'y remonter de trois façons, sans rien à écrire
+de plus dans le `.md` :
+
+- **Sous chaque étape**, les quantités des ingrédients qu'elle cite, ajustées aux
+  portions choisies : `2 œufs · 200 ml crème liquide entière · 80 g sucre en poudre`.
+  Un ingrédient sans quantité (sel, poivre) n'y figure pas, le texte de l'étape
+  le nomme déjà.
+- **Un bouton `Ingrédients`** flotte en bas de l'écran dès que la liste est sortie
+  de l'écran par le haut. Il l'ouvre dans un panneau par-dessus la page, qui se
+  referme d'un geste sans perdre sa place dans les étapes.
+- **Les ingrédients déjà utilisés sont grisés**, dans la liste comme dans le
+  panneau, quand toutes les étapes qui les citent sont cochées : ce qui reste noir
+  est ce qu'il reste à incorporer.
+
+La détection (`assets/step-ingredients.js`) cherche dans le texte de l'étape le
+nom de chaque ingrédient, en entier ou abrégé : `le cacao` renvoie à
+`cacao en poudre non sucré`, `le sel` à `gros sel`. Elle compare des mots
+entiers, pluriel compris : « un moule beurré » n'affiche pas le beurre. Sur les
+fiches actuelles, 9 ingrédients sur 10 sont repérés. Quelques règles pour écrire
+une étape qu'elle comprend :
+
+- **Nommer l'ingrédient comme dans la liste**, même en abrégé. « Faire une
+  omelette » ou « ajouter les aromates » ne renvoient à rien : la détection ne
+  devine pas, et c'est voulu, un ingrédient mal attribué serait pire qu'absent.
+  Pour ces étapes, le bouton `Ingrédients` reste là.
+- **Un ingrédient qui revient deux fois** (le sucre de la pâte, le sucre de la
+  crème) est attribué dans l'ordre : la première étape qui le cite prend la
+  première ligne de la liste. Il faut donc ranger la liste dans l'ordre de la
+  recette.
+- **Une quantité partagée entre deux étapes** (« 1 litre de lait », puis « le
+  quart restant ») s'affiche en entier sous chacune. Pour l'éviter, en faire deux
+  lignes d'ingrédients.
 
 ## Vérifier les ingrédients et faire les courses
 
