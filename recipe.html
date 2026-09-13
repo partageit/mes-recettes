@@ -470,14 +470,17 @@ function stepIngsHtml(i){
   return items.length ? `<div class="step-ings">${items.join('')}</div>` : '';
 }
 
-function recipeBody(r){
+// Portions et ingrédients : rangés avec les temps dans .head-col, à la largeur
+// des étapes.
+function recipeHead(r){
   return `
-    <div class="servingsbar">
-      <button onclick="changeServings(-1)">−</button>
-      <span>${escapeHtml(formatYield(Math.round(servings), r.yield_label))}</span>
-      <button onclick="changeServings(1)">+</button>
+    <div class="section-label ing-head"><span>Ingrédients</span>
+      <div class="servingsbar">
+        <button onclick="changeServings(-1)" aria-label="Une portion de moins">−</button>
+        <span>${escapeHtml(formatYield(Math.round(servings), r.yield_label))}</span>
+        <button onclick="changeServings(1)" aria-label="Une portion de plus">+</button>
+      </div>
     </div>
-    <div class="section-label">Ingrédients</div>
     ${checkBar(r)}
     <div class="ing-list">${r.ingredients.map((ing,i)=>{
       if(!checkMode) return plainIngRow(ing, i);
@@ -489,6 +492,11 @@ function recipeBody(r){
         + `${optional?'<span class="opt">optionnel</span>':''}</span>`
         + `<span>${qtyHtml(ing)}</span></label>`;
     }).join('')}</div>
+  `;
+}
+
+function recipeSteps(r){
+  return `
     <div class="section-label steps-head"><span>Étapes</span>${stepBar(r)}</div>
     <ol class="steps">${r.steps.map((s,i)=>
       `<li><button class="step-mark" type="button" data-step="${i}" aria-pressed="false"></button>`
@@ -540,10 +548,10 @@ function render(){
       ${r.categories.map(c=>`<span class="tag">${escapeHtml(c)}</span>`).join('')}
       ${st.label?`<span class="tag tag-${escapeHtml(r.status)}">${st.label}</span>`:''}
     </div>
-    ${timesBar(r)}
-    ${r.type==='memo'?'':recipeBody(r)}
+    <div class="head-col">${timesBar(r)}${r.type==='memo'?'':recipeHead(r)}</div>
+    ${r.type==='memo'?'':recipeSteps(r)}
     ${sectionsHtml(r)}
-    ${r.notes?`<div class="section-label">Notes</div><div class="notes">${escapeHtml(r.notes)}</div>`:''}
+    ${r.notes?`<div class="section-label">Notes</div><div class="notes${r.type==='memo'?' wide':''}">${escapeHtml(r.notes)}</div>`:''}
     ${seeAlsoHtml()}
     ${r.source_url?`<a class="sourcelink" href="${escapeHtml(r.source_url)}" target="_blank" rel="noopener">Source originale ↗</a>`:''}
     ${dateLine(r)}

@@ -165,9 +165,16 @@ a{color:inherit;text-decoration:none;}
 
 .detail h2{font-size:24px;margin:6px 0 4px;}
 .detail .desc{color:var(--ink-soft);font-size:14px;margin-bottom:14px;}
-.servingsbar{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-bottom:18px;max-width:220px;}
-.servingsbar button{width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:var(--field);font-size:16px;cursor:pointer;}
-.servingsbar span{font-size:14px;font-weight:600;flex:1;text-align:center;}
+/* Temps, portions et ingrédients à la largeur des étapes, centrés dedans. */
+.head-col{max-width:560px;}
+.head-col .timesbar{justify-content:center;}
+.head-col .ing-row{max-width:none;}
+/* Les portions tiennent sur la ligne du titre des ingrédients, qu'elles règlent. */
+.ing-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;min-height:28px;}
+.servingsbar{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:2px;text-transform:none;letter-spacing:0;}
+.servingsbar button{width:24px;height:24px;padding:0;border-radius:50%;border:1px solid var(--line);background:var(--field);color:var(--ink);font-family:inherit;font-size:15px;line-height:1;cursor:pointer;}
+.servingsbar button:hover{border-color:var(--basil);}
+.servingsbar span{font-size:13px;font-weight:600;color:var(--ink);min-width:78px;text-align:center;font-variant-numeric:tabular-nums;}
 
 .section-label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);font-weight:600;margin:18px 0 8px;}
 .ing-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px;max-width:480px;}
@@ -179,6 +186,8 @@ a{color:inherit;text-decoration:none;}
 
 .sourcelink{display:inline-block;margin-top:18px;font-size:13px;color:var(--basil-dark);}
 .notes{font-size:14px;line-height:1.55;color:var(--ink-soft);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;max-width:560px;white-space:pre-wrap;}
+/* Les notes d'un mémo suivent la largeur de ses tableaux, pas celle des étapes. */
+.notes.wide{max-width:none;}
 /* Mémo : tableaux de repères. Le cadre défile en largeur sur téléphone, la page
    ne s'élargit pas. Le minuteur passe sous le texte de sa case. */
 .memo-text{font-size:14px;line-height:1.55;color:var(--ink-soft);max-width:560px;margin:0 0 10px;white-space:pre-wrap;}
@@ -345,9 +354,9 @@ html:has(.sheet[open]){overflow:hidden;}
 
   /* Le nombre de portions à l'écran est celui qu'on a réglé au + et au − :
      c'est justement lui qu'on veut sur la feuille, mais sans son cadre. */
-  .servingsbar{display:block;border:0;padding:0;margin-bottom:12px;max-width:none;
-    font-size:12pt;font-weight:600;}
-  .servingsbar span{text-align:left;}
+  .servingsbar{display:block;border:0;padding:0;background:none;}
+  .servingsbar span{text-align:left;min-width:0;font-size:10pt;}
+  .head-col .timesbar{justify-content:flex-start;}
 
   /* La numérotation vient d'un compteur CSS et non du bouton .step-mark : celui
      d'une étape cochée affiche « ✓ » et ferait disparaître son numéro. */
