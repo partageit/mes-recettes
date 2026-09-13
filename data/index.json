@@ -511,6 +511,30 @@
     "updated": "2026-08-31T16:16"
   },
   {
+    "id": "marinade-epicee-facon-cajun-pour-cotes-de-porc",
+    "type": "recipe",
+    "title": "Marinade épicée façon cajun pour côtes de porc",
+    "description": "Une marinade sèche et épicée, avec une pointe d'huile qui forme une pâte accrocheuse et donne une belle croûte caramélisée au barbecue.",
+    "categories": [
+      "Plat",
+      "Marinade"
+    ],
+    "servings": "4",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 10,
+    "cook_time": 10,
+    "rest_time": 120,
+    "total_time": 140,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "côte de porc"
+    ],
+    "created": "2026-09-13T19:22",
+    "updated": "2026-09-13T19:22"
+  },
+  {
     "id": "pate-a-pizza-epaisse-et-moelleuse",
     "type": "recipe",
     "title": "Pâte à pizza épaisse et moelleuse",
