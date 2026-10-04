@@ -10,7 +10,7 @@ prep_time: 10
 cook_time: 30
 rest_time: 
 status: classic
-main_ingredients: [farine, oeuf, lait]
+main_ingredients: []
 source_url: https://www.marmiton.org/recettes/recette_pate-a-crepes_12372.aspx
 created: 2026-08-31T11:34
 updated: 2026-08-31T12:03

@@ -10,7 +10,7 @@ prep_time: 10
 cook_time: 25
 rest_time: 5
 status: classic
-main_ingredients: [farine, oeuf, lait]
+main_ingredients: []
 source_url: 
 created: 2026-08-31T16:15
 updated: 2026-08-31T16:16

@@ -242,6 +242,28 @@
     "updated": "2026-08-31T18:19"
   },
   {
+    "id": "crepes-d-ete",
+    "type": "recipe",
+    "title": "Crêpes d'été",
+    "description": "Pâte à crêpes à la cannelle, préparée en mélangeant tous les ingrédients puis en ajoutant le lait petit à petit.",
+    "categories": [
+      "Petit-déjeuner",
+      "Goûter"
+    ],
+    "servings": "25",
+    "yield_label": "crêpe",
+    "mold": "",
+    "prep_time": 10,
+    "cook_time": 40,
+    "rest_time": null,
+    "total_time": 50,
+    "status": "classic",
+    "needs_review": false,
+    "main_ingredients": [],
+    "created": "2026-10-04T18:01",
+    "updated": "2026-10-04T18:06"
+  },
+  {
     "id": "crepes-d-hiver",
     "type": "recipe",
     "title": "Crêpes d'hiver",
@@ -259,11 +281,7 @@
     "total_time": 40,
     "status": "classic",
     "needs_review": false,
-    "main_ingredients": [
-      "farine",
-      "oeuf",
-      "lait"
-    ],
+    "main_ingredients": [],
     "created": "2026-08-31T11:34",
     "updated": "2026-08-31T12:03"
   },
@@ -486,6 +504,27 @@
     "updated": "2026-08-31T12:23"
   },
   {
+    "id": "gaufres-de-bruxelles",
+    "type": "recipe",
+    "title": "Gaufres de Bruxelles",
+    "description": "Pâte légère à la levure de boulanger et aux blancs en neige, pour des gaufres croustillantes et aériennes.",
+    "categories": [
+      "Goûter"
+    ],
+    "servings": "6",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": null,
+    "cook_time": 4,
+    "rest_time": 60,
+    "total_time": 64,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [],
+    "created": "2026-10-04T18:01",
+    "updated": "2026-10-04T18:01"
+  },
+  {
     "id": "gaufres-moelleuses",
     "type": "recipe",
     "title": "Gaufres moelleuses",
@@ -502,11 +541,7 @@
     "total_time": 40,
     "status": "classic",
     "needs_review": false,
-    "main_ingredients": [
-      "farine",
-      "oeuf",
-      "lait"
-    ],
+    "main_ingredients": [],
     "created": "2026-08-31T16:15",
     "updated": "2026-08-31T16:16"
   },
@@ -668,6 +703,30 @@
     ],
     "created": "2026-08-31T11:33",
     "updated": "2026-08-31T11:38"
+  },
+  {
+    "id": "poulet-saute-au-brocoli-sauce-soja-sucree",
+    "type": "recipe",
+    "title": "Poulet sauté au brocoli, sauce soja sucrée",
+    "description": "Un wok rapide et caramélisé, à servir avec du riz.",
+    "categories": [
+      "Plat"
+    ],
+    "servings": "2",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": null,
+    "cook_time": 25,
+    "rest_time": null,
+    "total_time": 25,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "poulet",
+      "brocoli"
+    ],
+    "created": "2026-10-04T18:01",
+    "updated": "2026-10-04T18:06"
   },
   {
     "id": "quiche-lorraine-traditionnelle",
