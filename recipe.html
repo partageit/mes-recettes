@@ -620,6 +620,16 @@ document.addEventListener('visibilitychange', () => {
   if(document.visibilityState === 'visible') tick();
 });
 
+const resetArmed = new Map();
+function disarmReset(key){
+  clearTimeout(resetArmed.get(key));
+  resetArmed.delete(key);
+  const reset = document.querySelector(`.timer-reset[data-reset="${key}"]`);
+  if(!reset) return;
+  reset.textContent = '↺';
+  reset.classList.remove('confirm');
+}
+
 function timerChanged(){
   saveTimers();
   paintAllTimers();
@@ -679,6 +689,16 @@ document.getElementById('content').addEventListener('click', event => {
   const reset = event.target.closest('.timer-reset');
   if(reset){
     const key = reset.dataset.reset;
+    // Un minuteur qui a encore du temps ne s'efface pas d'un toucher maladroit :
+    // le premier arme le bouton (« Effacer ? »), le second, dans les 3 s, confirme.
+    const t = timers[key];
+    if(t && !t.done && !resetArmed.has(key)){
+      reset.textContent = 'Effacer ?';
+      reset.classList.add('confirm');
+      resetArmed.set(key, setTimeout(() => disarmReset(key), 3000));
+      return;
+    }
+    disarmReset(key);
     stopRinging(key);
     delete timers[key];
     if(isStepTimer(key)) markStep(key, false);

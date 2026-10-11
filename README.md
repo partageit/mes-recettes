@@ -503,8 +503,10 @@ une étape qu'elle comprend :
 ### Les minuteurs
 
 Un `{durée}` en fin d'étape devient un minuteur : un toucher le lance, un
-deuxième le met en pause, `↺` le remet à zéro. Pensés pour le téléphone posé sur
-le plan de travail :
+deuxième le met en pause, `↺` le remet à zéro. Un minuteur qui a encore du temps
+demande confirmation (`Effacer ?`, à retoucher dans les 3 s), pour ne pas perdre
+deux heures de repos d'un geste maladroit. Pensés pour le téléphone posé sur le
+plan de travail, où les boutons sont aussi plus gros qu'à la souris :
 
 - **L'écran reste allumé** tant qu'un minuteur tourne ou sonne : verrouillé, le
   téléphone suspendrait la page et la sonnerie ne partirait pas. Une page web ne
