@@ -21,7 +21,7 @@ needs_review: false
 - 8 tranches pain de mie
 - 50 g beurre tendre
 - 4 tranches jambon
-- 8 tranches toastinette
+- 4 tranches toastinette
 - 100 g gruyère râpé
 - 4 c.à.s lait
 - 1 pincée muscade
@@ -29,7 +29,7 @@ needs_review: false
 - sel
 
 ## Étapes
-1. Étalez le beurre sur une seule face des 8 tranches de pain de mie. Posez 1 tranche de toastinette sur chaque tranche de pain de mie. Posez 1 tranche de jambon plié en deux sur 4 tranches de pain de mie. Recouvrez avec les autres tartines (face non beurrée au dessus).
+1. Étalez le beurre sur une seule face de chaque tranche de pain de mie. Posez 1 tranche de toastinette puis 1 tranche de jambon plié en deux sur la moitié des tranches de pain de mie. Recouvrez avec les autres tartines (face non beurrée au dessus).
 2. Dans un bol mélanger le gruyère râpé avec le lait, le sel, le poivre et la muscade.
 3. Répartissez le mélange sur les croque-monsieur.
 4. Placez sur une plaque au four sous le grill pendant 10 mn. {10 min}

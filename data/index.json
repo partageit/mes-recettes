@@ -168,6 +168,27 @@
     "updated": "2026-08-31T12:23"
   },
   {
+    "id": "cookies-epais-beurre-noisette-chocolat-fleur-de-sel",
+    "type": "recipe",
+    "title": "Cookies épais beurre noisette, chocolat & fleur de sel",
+    "description": "Gros cookies bombés, bords dorés, cœur fondant, gros éclats de chocolat brillants sur le dessus.",
+    "categories": [
+      "Goûter"
+    ],
+    "servings": "12",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 30,
+    "cook_time": 20,
+    "rest_time": 150,
+    "total_time": 200,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [],
+    "created": "2026-10-11T12:46",
+    "updated": "2026-10-11T12:52"
+  },
+  {
     "id": "cote-de-boeuf-barbecue-au-gros-sel",
     "type": "recipe",
     "title": "Côte de boeuf barbecue au gros sel",
