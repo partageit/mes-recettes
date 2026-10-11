@@ -500,7 +500,7 @@ une étape qu'elle comprend :
   quart restant ») s'affiche en entier sous chacune. Pour l'éviter, en faire deux
   lignes d'ingrédients.
 
-## Passer une recette à quelqu'un : le QR code
+## Passer une recette à quelqu'un : QR code et partage
 
 Le bouton QR, en haut de la fiche à côté du thème, affiche en grand un QR code
 de la recette : la personne le photographie avec son téléphone et arrive sur la
@@ -512,7 +512,13 @@ depuis `npm run dev`, c'est `localhost`, qui ne sert qu'à l'ordinateur. La
 personne voit la fiche telle qu'elle est publiée, pas les portions choisies sur
 ton téléphone.
 
-Le calcul vient de [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator)
+Le bouton de partage, juste avant, sert quand la personne n'est pas là : il
+ouvre le menu de partage du téléphone (SMS, messageries, mail…) avec le titre et
+le même lien. Firefox sur ordinateur n'a pas ce menu : le lien est alors copié
+dans le presse-papiers et le bouton affiche « Lien copié ✓ » deux secondes ; si
+même la copie échoue, le lien s'affiche, sélectionné, pour le copier soi-même.
+
+Le calcul du QR code vient de [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator)
 (MIT), copié dans `assets/qrcode.js` : le site n'a ni build ni CDN. Pour le
 mettre à jour, recopier le `dist/qrcode.mjs` d'une nouvelle version.
 

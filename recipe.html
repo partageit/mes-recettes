@@ -14,6 +14,10 @@
   <div class="top">
     <a class="backlink" href="index.html">← toutes les recettes</a>
     <div class="top-actions">
+      <button class="qr-toggle share-toggle" id="share-toggle" type="button" aria-label="Partager la recette" title="Partager la recette" hidden>
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 10.5V1.5M4.75 4.5 8 1.5l3.25 3M5.5 7H3.5v7.5h9V7h-2"/></svg>
+        <span class="share-done">Lien copié ✓</span>
+      </button>
       <button class="qr-toggle" id="qr-toggle" type="button" aria-label="QR code de la recette" title="QR code de la recette" hidden>
         <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="currentColor"><path d="M1 1h6v6H1zm1.5 1.5v3h3v-3zM9 1h6v6H9zm1.5 1.5v3h3v-3zM1 9h6v6H1zm1.5 1.5v3h3v-3zM9 9h2v2H9zm2 2h2v2h-2zm2-2h2v2h-2zm0 4h2v2h-2zm-4 0h2v2H9z"/></svg>
       </button>
@@ -183,6 +187,7 @@ async function load(){
     loadChecked();
     loadDoneSteps();
     qrToggle.hidden = false;
+    shareToggle.hidden = false;
     render();
   }catch(e){
     showError();
@@ -579,19 +584,23 @@ sheet.querySelector('.sheet-close').addEventListener('click', () => sheet.close(
 // Un clic sur le fond assombri tombe sur le <dialog> lui-même, pas sur son contenu.
 sheet.addEventListener('click', event => { if(event.target === sheet) sheet.close(); });
 
-// --- QR code ---
-// Pour passer la recette à quelqu'un à côté de soi : il photographie l'écran.
-// Calculé à l'ouverture, jamais stocké. L'adresse est réduite à ?id=, sans ce
-// que la barre d'adresse pourrait porter d'autre. Fond blanc imposé même en
-// mode sombre : un code clair sur fond sombre échappe à certains lecteurs.
+// --- QR code et partage ---
+// L'adresse partagée est réduite à ?id=, sans ce que la barre d'adresse
+// pourrait porter d'autre.
+function recipeUrl(){
+  return location.origin + location.pathname + '?id=' + encodeURIComponent(recipe.id);
+}
+
+// Le QR code, pour quelqu'un à côté de soi : il photographie l'écran. Calculé à
+// l'ouverture, jamais stocké. Fond blanc imposé même en mode sombre : un code
+// clair sur fond sombre échappe à certains lecteurs.
 
 const qrToggle = document.getElementById('qr-toggle');
 const qrSheet = document.getElementById('qr-sheet');
 
 qrToggle.addEventListener('click', () => {
-  const url = location.origin + location.pathname + '?id=' + encodeURIComponent(recipe.id);
   const qr = qrcode(0, 'M');
-  qr.addData(url);
+  qr.addData(recipeUrl());
   qr.make();
   document.getElementById('qr-sheet-body').innerHTML =
     qr.createSvgTag({ cellSize: 4, margin: 16, scalable: true, title: recipe.title })
@@ -601,6 +610,34 @@ qrToggle.addEventListener('click', () => {
 
 qrSheet.querySelector('.sheet-close').addEventListener('click', () => qrSheet.close());
 qrSheet.addEventListener('click', event => { if(event.target === qrSheet) qrSheet.close(); });
+
+// Le partage, pour quelqu'un d'absent : le menu de partage du téléphone (SMS,
+// messageries…). Firefox sur ordinateur ne l'a pas : le lien part alors dans
+// le presse-papiers, et en dernier recours s'affiche, sélectionné, à copier.
+
+const shareToggle = document.getElementById('share-toggle');
+let shareDoneTimer = null;
+
+shareToggle.addEventListener('click', async () => {
+  const url = recipeUrl();
+  if(navigator.share){
+    try{
+      await navigator.share({ title: recipe.title, url });
+      return;
+    }catch(e){
+      // Menu refermé sans rien choisir : rien d'autre à faire.
+      if(e.name === 'AbortError') return;
+    }
+  }
+  try{
+    await navigator.clipboard.writeText(url);
+    shareToggle.classList.add('copied');
+    clearTimeout(shareDoneTimer);
+    shareDoneTimer = setTimeout(() => shareToggle.classList.remove('copied'), 2000);
+  }catch(e){
+    window.prompt('Lien de la recette :', url);
+  }
+});
 
 function render(){
   const r = recipe;
