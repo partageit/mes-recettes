@@ -13,7 +13,8 @@ mes-recettes/
 ├── style.css
 ├── assets/
 │   ├── recipe-format.js  parseur Markdown+frontmatter partagé (navigateur + scripts)
-│   └── step-ingredients.js  ingrédients cités par chaque étape (page recette)
+│   ├── step-ingredients.js  ingrédients cités par chaque étape (page recette)
+│   └── qrcode.js         bibliothèque qrcode-generator, copiée telle quelle (QR code de la fiche)
 ├── data/
 │   ├── index.json         résumé léger de chaque recette (généré, ne pas éditer à la main)
 │   └── recipes/
@@ -498,6 +499,22 @@ une étape qu'elle comprend :
 - **Une quantité partagée entre deux étapes** (« 1 litre de lait », puis « le
   quart restant ») s'affiche en entier sous chacune. Pour l'éviter, en faire deux
   lignes d'ingrédients.
+
+## Passer une recette à quelqu'un : le QR code
+
+Le bouton QR, en haut de la fiche à côté du thème, affiche en grand un QR code
+de la recette : la personne le photographie avec son téléphone et arrive sur la
+même fiche. Le code est calculé à l'ouverture, dans le navigateur, et n'est
+stocké nulle part. Il porte l'adresse de la page réduite à `recipe.html?id=…`.
+
+Il renvoie donc à l'adresse ouverte : depuis le site publié, c'est la bonne ;
+depuis `npm run dev`, c'est `localhost`, qui ne sert qu'à l'ordinateur. La
+personne voit la fiche telle qu'elle est publiée, pas les portions choisies sur
+ton téléphone.
+
+Le calcul vient de [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator)
+(MIT), copié dans `assets/qrcode.js` : le site n'a ni build ni CDN. Pour le
+mettre à jour, recopier le `dist/qrcode.mjs` d'une nouvelle version.
 
 ## Vérifier les ingrédients et faire les courses
 

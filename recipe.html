@@ -13,7 +13,12 @@
 <div class="wrap">
   <div class="top">
     <a class="backlink" href="index.html">← toutes les recettes</a>
-    <button class="theme-toggle" id="theme-toggle" type="button"></button>
+    <div class="top-actions">
+      <button class="qr-toggle" id="qr-toggle" type="button" aria-label="QR code de la recette" title="QR code de la recette" hidden>
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="currentColor"><path d="M1 1h6v6H1zm1.5 1.5v3h3v-3zM9 1h6v6H9zm1.5 1.5v3h3v-3zM1 9h6v6H1zm1.5 1.5v3h3v-3zM9 9h2v2H9zm2 2h2v2h-2zm2-2h2v2h-2zm0 4h2v2h-2zm-4 0h2v2H9z"/></svg>
+      </button>
+      <button class="theme-toggle" id="theme-toggle" type="button"></button>
+    </div>
   </div>
   <div id="content" class="detail" style="margin-top:14px;">
     <div class="empty"><div class="disp">Chargement…</div></div>
@@ -32,10 +37,20 @@
     <div id="ing-sheet-body"></div>
   </div>
 </dialog>
+<dialog id="qr-sheet" class="sheet" aria-labelledby="qr-sheet-title">
+  <div class="sheet-inner">
+    <div class="sheet-head">
+      <span class="section-label" id="qr-sheet-title">Scanner pour ouvrir la recette</span>
+      <button class="sheet-close" type="button" aria-label="Fermer">✕</button>
+    </div>
+    <div id="qr-sheet-body" class="qr-body"></div>
+  </div>
+</dialog>
 
 <script type="module">
 import { parseRecipeMarkdown, formatYield, formatDuration, STATUS_META, ingredientLabel, isOptionalIngredient, parseStamp } from './assets/recipe-format.js';
 import { stepIngredients } from './assets/step-ingredients.js';
+import qrcode from './assets/qrcode.js';
 
 function escapeHtml(s){
   const d = document.createElement('div');
@@ -167,6 +182,7 @@ async function load(){
     await loadSeeAlso();
     loadChecked();
     loadDoneSteps();
+    qrToggle.hidden = false;
     render();
   }catch(e){
     showError();
@@ -562,6 +578,29 @@ fab.addEventListener('click', () => {
 sheet.querySelector('.sheet-close').addEventListener('click', () => sheet.close());
 // Un clic sur le fond assombri tombe sur le <dialog> lui-même, pas sur son contenu.
 sheet.addEventListener('click', event => { if(event.target === sheet) sheet.close(); });
+
+// --- QR code ---
+// Pour passer la recette à quelqu'un à côté de soi : il photographie l'écran.
+// Calculé à l'ouverture, jamais stocké. L'adresse est réduite à ?id=, sans ce
+// que la barre d'adresse pourrait porter d'autre. Fond blanc imposé même en
+// mode sombre : un code clair sur fond sombre échappe à certains lecteurs.
+
+const qrToggle = document.getElementById('qr-toggle');
+const qrSheet = document.getElementById('qr-sheet');
+
+qrToggle.addEventListener('click', () => {
+  const url = location.origin + location.pathname + '?id=' + encodeURIComponent(recipe.id);
+  const qr = qrcode(0, 'M');
+  qr.addData(url);
+  qr.make();
+  document.getElementById('qr-sheet-body').innerHTML =
+    qr.createSvgTag({ cellSize: 4, margin: 16, scalable: true, title: recipe.title })
+    + `<div class="qr-title">${escapeHtml(recipe.title)}</div>`;
+  qrSheet.showModal();
+});
+
+qrSheet.querySelector('.sheet-close').addEventListener('click', () => qrSheet.close());
+qrSheet.addEventListener('click', event => { if(event.target === qrSheet) qrSheet.close(); });
 
 function render(){
   const r = recipe;

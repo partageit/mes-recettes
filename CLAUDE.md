@@ -30,6 +30,7 @@ chargement de `data/index.json` et des `.md`. Toujours passer par `npm run dev`.
 | `index.html` / `recipe.html` / `courses.html` | les trois pages, en JS natif |
 | `assets/recipe-format.js` | parseur Markdown+frontmatter partagé navigateur ↔ scripts |
 | `assets/step-ingredients.js` | détecte les ingrédients cités par chaque étape (quantités sous l'étape, grisage) |
+| `assets/qrcode.js` | bibliothèque externe copiée telle quelle (QR code de la fiche) — ne pas l'éditer |
 | `data/recipes/<slug>.md` | **la source de vérité** d'une recette |
 | `data/index.json` | **généré** — ne jamais l'éditer à la main |
 | `_staging/` | dépôt temporaire des fichiers à importer, gitignoré |

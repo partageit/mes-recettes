@@ -269,6 +269,14 @@ html:has(.sheet[open]){overflow:hidden;}
 .sheet-close:hover{border-color:var(--rust);color:var(--rust);}
 .sheet .ing-row{max-width:none;}
 
+.top-actions{display:flex;align-items:center;gap:8px;}
+.qr-toggle{flex:none;width:34px;height:34px;padding:0;border:1px solid var(--line);border-radius:50%;background:var(--card);color:var(--ink-soft);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.qr-toggle:hover{border-color:var(--basil);color:var(--basil-dark);}
+.qr-toggle[hidden]{display:none;}
+.qr-body{display:flex;flex-direction:column;align-items:center;gap:10px;padding:6px 0 4px;}
+.qr-body svg{display:block;width:min(78vw, 50vh, 340px);height:auto;border-radius:10px;}
+.qr-title{font-size:14px;font-weight:600;text-align:center;}
+
 /* Vérification des ingrédients & liste de courses */
 .checkbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px;}
 .check-toggle{border:1px solid var(--line);background:var(--card);color:var(--basil-dark);border-radius:999px;padding:5px 13px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;}
@@ -345,7 +353,7 @@ html:has(.sheet[open]){overflow:hidden;}
 
   /* Tout ce qui appelle un clic. La barre de vérification et celle des étapes
      partent aussi : leur décompte ne veut plus rien dire sur papier. */
-  .backlink, .theme-toggle, .checkbar, .stepbar,
+  .backlink, .theme-toggle, .qr-toggle, .checkbar, .stepbar,
   .adder, .suggestions, #picker, .wrap > .section-label,
   .servingsbar button, .timer-reset, .ing-fab, .sheet{display:none;}
   /* Sur papier, rien n'est « déjà utilisé » : la liste sort en noir. */
