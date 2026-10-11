@@ -134,7 +134,9 @@ Le menu range les ingrédients du plus fourni au plus rare et offre un champ de
 saisie pour retrouver le sien sans dérouler toute la liste.
 
 `servings` est obligatoire : c'est la base du calcul des quantités quand on
-change le nombre de portions sur la fiche.
+change le nombre de portions sur la fiche. Le nombre choisi sur la fiche est
+retenu par le navigateur pendant 6 h après le dernier changement, comme les
+étapes cochées, puis la fiche revient à `servings`.
 
 ### Renvois vers d'autres fiches
 

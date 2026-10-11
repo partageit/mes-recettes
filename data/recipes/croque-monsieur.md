@@ -13,7 +13,7 @@ status: classic
 main_ingredients: [pain de mie, jambon, gruyère]
 source_url: https://www.marmiton.org/recettes/recette_croque-monsieur_19208.aspx
 created: 2026-08-31T11:33
-updated: 2026-08-31T11:37
+updated: 2026-10-11T12:44
 needs_review: false
 ---
 
@@ -29,7 +29,7 @@ needs_review: false
 - sel
 
 ## Étapes
-1. Beurrez les 8 tranches de pain de mie sur une seule face. Posez 1 tranche de fromage sur chaque tranche de pain de mie. Posez 1 tranche de jambon plié en deux sur 4 tranches de pain de mie. Recouvrez avec les autres tartines (face non beurrée au dessus).
-2. Dans un bol mélanger le fromage râpé avec le lait, le sel, le poivre et la muscade.
+1. Étalez le beurre sur une seule face des 8 tranches de pain de mie. Posez 1 tranche de toastinette sur chaque tranche de pain de mie. Posez 1 tranche de jambon plié en deux sur 4 tranches de pain de mie. Recouvrez avec les autres tartines (face non beurrée au dessus).
+2. Dans un bol mélanger le gruyère râpé avec le lait, le sel, le poivre et la muscade.
 3. Répartissez le mélange sur les croque-monsieur.
 4. Placez sur une plaque au four sous le grill pendant 10 mn. {10 min}

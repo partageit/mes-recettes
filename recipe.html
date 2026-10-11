@@ -76,6 +76,10 @@ function stepsKey(){
   return 'mes-recettes:steps:' + (recipe ? recipe.id : '');
 }
 
+function servingsKey(){
+  return 'mes-recettes:servings:' + (recipe ? recipe.id : '');
+}
+
 function loadChecked(){
   try{
     const raw = localStorage.getItem(storageKey());
@@ -98,6 +102,27 @@ function loadDoneSteps(){
     if(Date.now() - (saved.at || 0) > STEPS_TTL){ localStorage.removeItem(stepsKey()); return; }
     doneSteps = new Set(saved.steps || []);
   }catch(e){ doneSteps = new Set(); }
+}
+
+// Portions choisies : éphémères comme les étapes, et pour la même raison. On
+// retrouve son choix en revenant sur la fiche pendant la préparation, pas la
+// fois suivante. Seul un nombre différent de celui de la fiche est retenu.
+function loadServings(){
+  servings = parseFloat(recipe.servings) || 4;
+  try{
+    const raw = localStorage.getItem(servingsKey());
+    if(!raw) return;
+    const saved = JSON.parse(raw);
+    if(Date.now() - (saved.at || 0) > STEPS_TTL){ localStorage.removeItem(servingsKey()); return; }
+    if(saved.servings >= 1) servings = saved.servings;
+  }catch(e){ /* valeur illisible : on garde celle de la fiche */ }
+}
+
+function saveServings(){
+  try{
+    if(servings === (parseFloat(recipe.servings) || 4)) localStorage.removeItem(servingsKey());
+    else localStorage.setItem(servingsKey(), JSON.stringify({at: Date.now(), servings}));
+  }catch(e){ /* navigation privée, quota : le choix vaut pour cette visite seulement */ }
 }
 
 // L'horodatage suit la dernière étape cochée : une recette avec deux heures de
@@ -135,7 +160,7 @@ async function load(){
     if(!res.ok) throw new Error('not found');
     const text = await res.text();
     recipe = parseRecipeMarkdown(text);
-    servings = parseFloat(recipe.servings) || 4;
+    loadServings();
     stepIngs = stepIngredients(recipe);
     stepsOfIng = recipe.ingredients.map((ing, k) =>
       stepIngs.flatMap((list, i) => list.includes(k) ? [i] : []));
@@ -176,6 +201,7 @@ function showError(){
 
 window.changeServings = function(delta){
   servings = Math.max(1, servings + delta);
+  saveServings();
   render();
 };
 
