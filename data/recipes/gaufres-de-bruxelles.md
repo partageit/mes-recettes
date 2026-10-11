@@ -3,8 +3,8 @@ id: gaufres-de-bruxelles
 title: Gaufres de Bruxelles
 description: Pâte légère à la levure de boulanger et aux blancs en neige, pour des gaufres croustillantes et aériennes.
 categories: [Goûter]
-servings: 6
-yield_label: 
+servings: 26
+yield_label: gaufre
 mold: 
 prep_time: 
 cook_time: 4
@@ -13,7 +13,7 @@ status: favorite
 main_ingredients: []
 source_url: 
 created: 2026-10-04T18:01
-updated: 2026-10-04T18:01
+updated: 2026-10-11T19:40
 needs_review: false
 ---
 

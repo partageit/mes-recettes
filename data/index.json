@@ -532,8 +532,8 @@
     "categories": [
       "Goûter"
     ],
-    "servings": "6",
-    "yield_label": "",
+    "servings": "26",
+    "yield_label": "gaufre",
     "mold": "",
     "prep_time": null,
     "cook_time": 4,
@@ -543,7 +543,7 @@
     "needs_review": false,
     "main_ingredients": [],
     "created": "2026-10-04T18:01",
-    "updated": "2026-10-04T18:01"
+    "updated": "2026-10-11T19:40"
   },
   {
     "id": "gaufres-moelleuses",
