@@ -32,6 +32,7 @@
 <!-- Hors de #content : render() remplace tout son contenu, le panneau ouvert
      disparaîtrait avec. -->
 <button id="ing-fab" class="ing-fab" type="button" hidden>Ingrédients</button>
+<div id="timer-bar" class="timer-bar" hidden></div>
 <dialog id="ing-sheet" class="sheet" aria-labelledby="ing-sheet-title">
   <div class="sheet-inner">
     <div class="sheet-head">
@@ -65,8 +66,9 @@ function escapeHtml(s){
 let recipe = null;
 let servings = null;
 
-// État des minuteurs, indexé par numéro d'étape. Conservé hors du DOM pour
-// survivre aux re-rendus déclenchés par le changement de portions.
+// État des minuteurs, indexé par numéro d'étape (ou case de mémo). Conservé
+// hors du DOM pour survivre aux re-rendus déclenchés par le changement de
+// portions, et dans le localStorage pour survivre à un rechargement.
 const timers = {};
 
 // Mode vérification : on coche ce qu'on a sous la main pour voir ce qui manque.
@@ -188,6 +190,8 @@ async function load(){
     await loadSeeAlso();
     loadChecked();
     loadDoneSteps();
+    loadTimers();
+    tick(false);
     qrToggle.hidden = false;
     shareToggle.hidden = false;
     render();
@@ -377,7 +381,24 @@ function timerMinutes(key){
 // part ailleurs dans le DOM, splitStepDuration l'ayant retirée du texte.
 function timerButton(key, minutes){
   return `<button class="timer" data-timer="${key}" data-minutes="${escapeHtml(formatDuration(minutes))}" type="button"></button>`
+    + `<button class="timer-more" data-more="${key}" type="button" title="Une minute de plus" hidden>+1 min</button>`
     + `<button class="timer-reset" data-reset="${key}" type="button" title="Réinitialiser">↺</button>`;
+}
+
+// Un minuteur retient son heure de fin, pas un décompte : un téléphone
+// verrouillé ou une page en arrière-plan suspend les tics, et un décompte
+// prendrait du retard. Le temps restant se recalcule sur l'horloge.
+//   { endsAt }      en cours, heure de fin en ms
+//   { left }        en pause, ms restantes
+//   { done: true }  terminé
+function timerLeft(t){
+  if(t.done) return 0;
+  if(t.endsAt) return Math.max(0, t.endsAt - Date.now());
+  return t.left;
+}
+
+function timerText(t){
+  return clock(Math.ceil(timerLeft(t) / 1000));
 }
 
 function paintTimer(key){
@@ -385,31 +406,130 @@ function paintTimer(key){
   if(!btn) return;
   const t = timers[key];
   const reset = document.querySelector(`.timer-reset[data-reset="${key}"]`);
+  const more = document.querySelector(`.timer-more[data-more="${key}"]`);
 
   if(!t){
     btn.textContent = `▶ ${formatDuration(timerMinutes(key))}`;
     btn.className = 'timer';
     if(reset) reset.hidden = true;
+    if(more) more.hidden = true;
     return;
   }
   if(reset) reset.hidden = false;
-  if(t.remaining <= 0){
-    btn.textContent = '✓ terminé';
-    btn.className = 'timer done';
+  if(more) more.hidden = !t.done;
+  if(t.done){
+    const ring = ringing.has(key);
+    btn.textContent = ring ? '🔔 terminé' : '✓ terminé';
+    btn.className = 'timer done' + (ring ? ' ringing' : '');
     return;
   }
-  btn.textContent = `${t.running ? '⏸' : '▶'} ${clock(t.remaining)}`;
-  btn.className = 'timer ' + (t.running ? 'running' : 'paused');
+  btn.textContent = `${t.endsAt ? '⏸' : '▶'} ${timerText(t)}`;
+  btn.className = 'timer ' + (t.endsAt ? 'running' : 'paused');
 }
 
 function paintAllTimers(){
   document.querySelectorAll('.timer').forEach(btn => paintTimer(btn.dataset.timer));
+  paintTimerBar();
 }
 
+// --- Bandeau des minuteurs ---
+// Un minuteur lancé sort de l'écran dès qu'on fait défiler la fiche : le
+// bandeau, en bas à gauche, le rappelle tant que son bouton n'est pas visible.
+// Les pastilles sont mises à jour sur place, pas recréées : un toucher qui
+// tomberait pendant le tic de chaque seconde serait perdu.
+
+const timerBar = document.getElementById('timer-bar');
+
+function timerLabel(key){
+  if(isStepTimer(key)) return 'Étape ' + (Number(key) + 1);
+  const cell = /^c(\d+)-(\d+)-(\d+)-(\d+)$/.exec(key);
+  const label = recipe.sections[cell[1]].blocks[cell[2]].rows[cell[3]][0].text;
+  return label.length > 22 ? label.slice(0, 21) + '…' : label;
+}
+
+function paintTimerBar(){
+  const shown = Object.keys(timers).filter(key => {
+    const btn = document.querySelector(`.timer[data-timer="${key}"]`);
+    if(!btn) return false;
+    const box = btn.getBoundingClientRect();
+    return box.bottom < 0 || box.top > window.innerHeight;
+  });
+  timerBar.querySelectorAll('.timer-chip').forEach(chip => {
+    if(!shown.includes(chip.dataset.chip)) chip.remove();
+  });
+  shown.forEach(key => {
+    let chip = timerBar.querySelector(`.timer-chip[data-chip="${key}"]`);
+    if(!chip){
+      chip = document.createElement('button');
+      chip.type = 'button';
+      chip.dataset.chip = key;
+      timerBar.append(chip);
+    }
+    const t = timers[key];
+    const state = t.done ? 'done' + (ringing.has(key) ? ' ringing' : '') : t.endsAt ? 'running' : 'paused';
+    chip.className = 'timer-chip ' + state;
+    chip.textContent = `${timerLabel(key)} · ${t.done ? 'terminé' : timerText(t)}`;
+  });
+  timerBar.hidden = !shown.length;
+}
+window.addEventListener('scroll', paintTimerBar, { passive: true });
+window.addEventListener('resize', paintTimerBar);
+
+timerBar.addEventListener('click', event => {
+  const chip = event.target.closest('.timer-chip');
+  if(!chip) return;
+  const key = chip.dataset.chip;
+  unlockAudio();
+  stopRinging(key);
+  const btn = document.querySelector(`.timer[data-timer="${key}"]`);
+  if(btn) btn.scrollIntoView({ block: 'center', behavior: 'smooth' });
+});
+
+// --- Mémoire des minuteurs ---
+// Un rechargement (le téléphone en fait de lui-même après un passage dans une
+// autre appli) ne doit pas les perdre. Même délai que les étapes cochées.
+
+function timersKey(){
+  return 'mes-recettes:timers:' + (recipe ? recipe.id : '');
+}
+
+function saveTimers(){
+  try{
+    if(!Object.keys(timers).length) localStorage.removeItem(timersKey());
+    else localStorage.setItem(timersKey(), JSON.stringify({at: Date.now(), timers}));
+  }catch(e){ /* navigation privée, quota : les minuteurs tournent sans mémoire */ }
+}
+
+function loadTimers(){
+  try{
+    const raw = localStorage.getItem(timersKey());
+    if(!raw) return;
+    const saved = JSON.parse(raw);
+    if(Date.now() - (saved.at || 0) > STEPS_TTL){ localStorage.removeItem(timersKey()); return; }
+    Object.assign(timers, saved.timers || {});
+  }catch(e){ /* mémoire illisible : on repart sans minuteur */ }
+}
+
+// --- Sonnerie ---
+// Safari ne laisse jouer un son qu'à la suite d'un geste : le contexte audio se
+// prépare quand on touche un minuteur, pas au moment de sonner, où il n'y a
+// plus de geste et où il resterait muet.
 let audio = null;
-function beep(){
+function unlockAudio(){
   try{
     audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    if(audio.state !== 'running') audio.resume();
+  }catch(e){ /* pas de son disponible : l'affichage suffit */ }
+}
+// Un minuteur restauré après un rechargement n'a pas eu de geste : le premier
+// toucher sur la page, quel qu'il soit, prépare le son.
+document.addEventListener('pointerdown', () => {
+  if(Object.keys(timers).length) unlockAudio();
+}, { passive: true });
+
+function beep(){
+  try{
+    unlockAudio();
     const now = audio.currentTime;
     [0, 0.45].forEach(offset => {
       const osc = audio.createOscillator();
@@ -423,21 +543,88 @@ function beep(){
       osc.stop(now + offset + 0.4);
     });
   }catch(e){ /* pas de son disponible : l'affichage suffit */ }
+  // Android seulement : l'iPhone ne laisse pas vibrer un site.
+  try{ if(navigator.vibrate) navigator.vibrate([200, 100, 200]); }catch(e){ /* sans vibration */ }
 }
 
-setInterval(() => {
-  Object.keys(timers).forEach(index => {
-    const t = timers[index];
-    if(!t.running || t.remaining <= 0) return;
-    t.remaining -= 1;
-    if(t.remaining <= 0){
-      t.running = false;
-      beep();
-      if(isStepTimer(index)) markStep(index, true);
-    }
-    paintTimer(index);
+// Deux bips se ratent avec la hotte allumée : la sonnerie reprend toutes les
+// 3 s jusqu'à ce qu'on touche le minuteur, sa pastille ou l'étape, et se tait
+// d'elle-même au bout d'une minute.
+const RING_EVERY = 3000;
+const RING_FOR = 60000;
+const ringing = new Map();
+
+function startRinging(key){
+  ringing.set(key, { until: Date.now() + RING_FOR, last: 0 });
+}
+
+function stopRinging(key){
+  if(ringing.delete(String(key))) paintAllTimers();
+}
+
+function ring(){
+  const now = Date.now();
+  ringing.forEach((r, key) => {
+    if(now > r.until){ ringing.delete(key); return; }
+    // Le tic d'une seconde arrive un peu avant ou après : la demi-seconde de
+    // marge évite qu'un bip sur deux glisse au tic suivant.
+    if(now - r.last >= RING_EVERY - 500){ beep(); r.last = now; }
   });
-}, 1000);
+}
+
+// --- Écran allumé ---
+// Verrouillé, le téléphone suspend la page : la sonnerie ne partirait pas. On
+// garde donc l'écran allumé tant qu'un minuteur tourne ou sonne. Le verrou
+// tombe de lui-même quand la page passe en arrière-plan, et se reprend au retour.
+let wakeLock = null;
+let wakePending = false;
+async function updateWakeLock(){
+  if(!navigator.wakeLock) return;
+  const need = ringing.size > 0 || Object.values(timers).some(t => t.endsAt);
+  if(need && !wakeLock && !wakePending && document.visibilityState === 'visible'){
+    wakePending = true;
+    try{
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    }catch(e){ /* refusé (batterie faible…) : l'écran se mettra en veille */ }
+    wakePending = false;
+  } else if(!need && wakeLock){
+    const lock = wakeLock;
+    wakeLock = null;
+    lock.release().catch(() => {});
+  }
+}
+
+// --- Tic ---
+// Termine les minuteurs échus. ringIt est faux au chargement : un minuteur
+// fini pendant que la page était fermée s'affiche terminé, sans sonner.
+function tick(ringIt = true){
+  let changed = false;
+  Object.keys(timers).forEach(key => {
+    const t = timers[key];
+    if(!t.endsAt || t.endsAt > Date.now()) return;
+    timers[key] = { done: true };
+    changed = true;
+    if(ringIt) startRinging(key);
+    if(isStepTimer(key)) markStep(key, true);
+  });
+  if(changed) saveTimers();
+  ring();
+  paintAllTimers();
+  updateWakeLock();
+}
+setInterval(tick, 1000);
+// Au retour sur la page, sans attendre le prochain tic : l'affichage est juste
+// tout de suite, et ce qui a fini entre-temps sonne.
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible') tick();
+});
+
+function timerChanged(){
+  saveTimers();
+  paintAllTimers();
+  updateWakeLock();
+}
 
 document.getElementById('content').addEventListener('change', event => {
   const box = event.target.closest('input[data-ing]');
@@ -455,27 +642,47 @@ document.getElementById('content').addEventListener('click', event => {
   const mark = event.target.closest('.step-mark');
   if(mark){
     const index = mark.dataset.step;
+    stopRinging(index);
     markStep(index, !doneSteps.has(String(index)));
     return;
   }
   const start = event.target.closest('.timer');
   if(start){
-    const index = start.dataset.timer;
-    if(!timers[index] || timers[index].remaining <= 0){
-      timers[index] = { remaining: timerMinutes(index) * 60, running: true };
-      if(isStepTimer(index)) markStep(index, false);
+    const key = start.dataset.timer;
+    const t = timers[key];
+    unlockAudio();
+    // Qui sonne se tait d'un toucher, sans repartir pour un tour.
+    if(ringing.has(key)){ stopRinging(key); updateWakeLock(); return; }
+    if(!t || t.done){
+      timers[key] = { endsAt: Date.now() + timerMinutes(key) * 60000 };
+      if(isStepTimer(key)) markStep(key, false);
+    } else if(t.endsAt){
+      timers[key] = { left: Math.max(0, t.endsAt - Date.now()) };
     } else {
-      timers[index].running = !timers[index].running;
+      timers[key] = { endsAt: Date.now() + t.left };
     }
-    paintTimer(index);
+    timerChanged();
+    return;
+  }
+  // Le centre des cookies n'est pas pris : une minute de plus, sans relancer
+  // toute la durée.
+  const more = event.target.closest('.timer-more');
+  if(more){
+    const key = more.dataset.more;
+    unlockAudio();
+    stopRinging(key);
+    timers[key] = { endsAt: Date.now() + 60000 };
+    if(isStepTimer(key)) markStep(key, false);
+    timerChanged();
     return;
   }
   const reset = event.target.closest('.timer-reset');
   if(reset){
-    const index = reset.dataset.reset;
-    delete timers[index];
-    if(isStepTimer(index)) markStep(index, false);
-    paintTimer(index);
+    const key = reset.dataset.reset;
+    stopRinging(key);
+    delete timers[key];
+    if(isStepTimer(key)) markStep(key, false);
+    timerChanged();
   }
 });
 

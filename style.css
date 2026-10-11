@@ -220,6 +220,22 @@ a{color:inherit;text-decoration:none;}
 .timer.done{background:var(--rust-bg);border-color:var(--rust);color:var(--rust);}
 .timer-reset{border:1px solid var(--line);background:var(--card);color:var(--ink-soft);border-radius:50%;width:24px;height:24px;padding:0;font-size:13px;line-height:1;cursor:pointer;font-family:inherit;}
 .timer-reset:hover{border-color:var(--rust);color:var(--rust);}
+.timer-more{border:1px solid var(--line);background:var(--card);color:var(--basil-dark);border-radius:999px;padding:3px 9px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;}
+.timer-more:hover{border-color:var(--basil);}
+.timer-more[hidden], .timer-reset[hidden]{display:none;}
+/* Sonnerie en cours : le minuteur bat jusqu'à ce qu'on le touche. */
+.timer.ringing, .timer-chip.ringing{animation:ring-pulse 1s ease-in-out infinite;}
+@keyframes ring-pulse{50%{box-shadow:0 0 0 6px var(--rust-bg);}}
+@media (prefers-reduced-motion:reduce){.timer.ringing, .timer-chip.ringing{animation:none;}}
+
+/* Bandeau des minuteurs sortis de l'écran, en bas à gauche : le bouton
+   Ingrédients garde le coin droit. */
+.timer-bar{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:30;display:flex;flex-direction:column-reverse;align-items:flex-start;gap:6px;max-width:calc(100% - 180px);}
+.timer-bar[hidden]{display:none;}
+.timer-chip{max-width:100%;overflow:hidden;text-overflow:ellipsis;border:1px solid var(--basil);background:var(--card);color:var(--basil-dark);border-radius:999px;padding:9px 14px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-variant-numeric:tabular-nums;box-shadow:0 6px 18px var(--shadow);}
+.timer-chip.running{background:var(--basil);color:var(--on-accent);}
+.timer-chip.paused{background:var(--basil-bg);}
+.timer-chip.done{background:var(--rust-bg);border-color:var(--rust);color:var(--rust);}
 
 /* Étapes faites */
 /* Le padding ne change pas d'un état à l'autre : le texte ne doit pas sauter
@@ -359,7 +375,7 @@ html:has(.sheet[open]){overflow:hidden;}
      partent aussi : leur décompte ne veut plus rien dire sur papier. */
   .backlink, .theme-toggle, .qr-toggle, .checkbar, .stepbar,
   .adder, .suggestions, #picker, .wrap > .section-label,
-  .servingsbar button, .timer-reset, .ing-fab, .sheet{display:none;}
+  .servingsbar button, .timer-reset, .timer-more, .timer-bar, .ing-fab, .sheet{display:none;}
   /* Sur papier, rien n'est « déjà utilisé » : la liste sort en noir. */
   .ing-row.used{color:var(--ink);}
   .ing-row.used span:last-child{color:var(--ink-soft);}

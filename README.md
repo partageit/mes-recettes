@@ -500,6 +500,29 @@ une étape qu'elle comprend :
   quart restant ») s'affiche en entier sous chacune. Pour l'éviter, en faire deux
   lignes d'ingrédients.
 
+### Les minuteurs
+
+Un `{durée}` en fin d'étape devient un minuteur : un toucher le lance, un
+deuxième le met en pause, `↺` le remet à zéro. Pensés pour le téléphone posé sur
+le plan de travail :
+
+- **L'écran reste allumé** tant qu'un minuteur tourne ou sonne : verrouillé, le
+  téléphone suspendrait la page et la sonnerie ne partirait pas. Une page web ne
+  peut pas sonner écran éteint, il n'y a pas d'autre parade.
+- **Le temps reste juste** même si la page a été mise en pause (autre appli,
+  écran verrouillé quand même) : le minuteur retient son heure de fin et se
+  recale au retour. S'il a fini entre-temps, il sonne à ce moment-là.
+- **La sonnerie insiste** : un double bip toutes les 3 s, avec vibration sur
+  Android, jusqu'à ce qu'on touche le minuteur, sa pastille ou l'étape, et au
+  plus une minute. Le minuteur fini coche son étape et propose `+1 min`.
+- **Un bandeau en bas à gauche** rappelle les minuteurs dont le bouton est sorti
+  de l'écran (« Étape 7 · 4:32 ») ; le toucher ramène à l'étape.
+- **Ils survivent à un rechargement**, pendant 6 h comme les étapes cochées. Un
+  minuteur fini pendant que la page était fermée s'affiche terminé, sans sonner.
+
+Sur iPhone, le bouton silencieux coupe aussi la sonnerie, et un site ne peut pas
+faire vibrer le téléphone : seul l'affichage prévient alors.
+
 ## Passer une recette à quelqu'un : QR code et partage
 
 Le bouton QR, en haut de la fiche à côté du thème, affiche en grand un QR code
