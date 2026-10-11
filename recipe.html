@@ -381,6 +381,7 @@ function timerMinutes(key){
 // part ailleurs dans le DOM, splitStepDuration l'ayant retirée du texte.
 function timerButton(key, minutes){
   return `<button class="timer" data-timer="${key}" data-minutes="${escapeHtml(formatDuration(minutes))}" type="button"></button>`
+    + `<button class="timer-less" data-less="${key}" type="button" title="Lancé en retard : 30 secondes de moins" hidden>−30 s</button>`
     + `<button class="timer-more" data-more="${key}" type="button" title="Une minute de plus" hidden>+1 min</button>`
     + `<button class="timer-reset" data-reset="${key}" type="button" title="Réinitialiser">↺</button>`;
 }
@@ -407,6 +408,10 @@ function paintTimer(key){
   const t = timers[key];
   const reset = document.querySelector(`.timer-reset[data-reset="${key}"]`);
   const more = document.querySelector(`.timer-more[data-more="${key}"]`);
+  const less = document.querySelector(`.timer-less[data-less="${key}"]`);
+  // −30 s disparaît sous les 30 dernières secondes, pour qu'un toucher de trop
+  // n'arrête pas le minuteur, et pendant « Effacer ? », qui prend sa place.
+  if(less) less.hidden = !t || !!t.done || timerLeft(t) <= 30000 || resetArmed.has(key);
 
   if(!t){
     btn.textContent = `▶ ${formatDuration(timerMinutes(key))}`;
@@ -549,9 +554,9 @@ function beep(){
 
 // Deux bips se ratent avec la hotte allumée : la sonnerie reprend toutes les
 // 3 s jusqu'à ce qu'on touche le minuteur, sa pastille ou l'étape, et se tait
-// d'elle-même au bout d'une minute.
+// d'elle-même au bout de 30 s.
 const RING_EVERY = 3000;
-const RING_FOR = 60000;
+const RING_FOR = 30000;
 const ringing = new Map();
 
 function startRinging(key){
@@ -628,6 +633,7 @@ function disarmReset(key){
   if(!reset) return;
   reset.textContent = '↺';
   reset.classList.remove('confirm');
+  paintTimer(key);
 }
 
 function timerChanged(){
@@ -674,6 +680,19 @@ document.getElementById('content').addEventListener('click', event => {
     timerChanged();
     return;
   }
+  // Minuteur lancé en retard : on retire le temps oublié, 30 s par toucher. Au
+  // moins une seconde reste, pour que le minuteur finisse par sonner.
+  const less = event.target.closest('.timer-less');
+  if(less){
+    const key = less.dataset.less;
+    const t = timers[key];
+    if(!t || t.done) return;
+    unlockAudio();
+    if(t.endsAt) t.endsAt = Math.max(t.endsAt - 30000, Date.now() + 1000);
+    else t.left = Math.max(t.left - 30000, 1000);
+    timerChanged();
+    return;
+  }
   // Le centre des cookies n'est pas pris : une minute de plus, sans relancer
   // toute la durée.
   const more = event.target.closest('.timer-more');
@@ -696,6 +715,7 @@ document.getElementById('content').addEventListener('click', event => {
       reset.textContent = 'Effacer ?';
       reset.classList.add('confirm');
       resetArmed.set(key, setTimeout(() => disarmReset(key), 3000));
+      paintTimer(key);
       return;
     }
     disarmReset(key);

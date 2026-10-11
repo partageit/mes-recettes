@@ -516,7 +516,10 @@ plan de travail, où les boutons sont aussi plus gros qu'à la souris :
   recale au retour. S'il a fini entre-temps, il sonne à ce moment-là.
 - **La sonnerie insiste** : un double bip toutes les 3 s, avec vibration sur
   Android, jusqu'à ce qu'on touche le minuteur, sa pastille ou l'étape, et au
-  plus une minute. Le minuteur fini coche son étape et propose `+1 min`.
+  plus 30 s. Le minuteur fini coche son étape et propose `+1 min`.
+- **Lancé en retard ?** `−30 s`, à côté du minuteur qui tourne, retire le temps
+  oublié, 30 s par toucher : les gaufres sonnent à l'heure sans surveiller la
+  dernière minute. Il disparaît sous les 30 dernières secondes.
 - **Un bandeau en bas à gauche** rappelle les minuteurs dont le bouton est sorti
   de l'écran (« Étape 7 · 4:32 ») ; le toucher ramène à l'étape.
 - **Ils survivent à un rechargement**, pendant 6 h comme les étapes cochées. Un
