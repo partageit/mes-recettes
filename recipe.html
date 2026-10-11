@@ -179,6 +179,8 @@ async function load(){
     if(!res.ok) throw new Error('not found');
     const text = await res.text();
     recipe = parseRecipeMarkdown(text);
+    // Onglet, historique, favoris et icône d'écran d'accueil.
+    document.title = recipe.title;
     loadServings();
     stepIngs = stepIngredients(recipe);
     stepsOfIng = recipe.ingredients.map((ing, k) =>
@@ -622,7 +624,9 @@ shareToggle.addEventListener('click', async () => {
   const url = recipeUrl();
   if(navigator.share){
     try{
-      await navigator.share({ title: recipe.title, url });
+      // title seul ne suffit pas : messageries et SMS l'ignorent et n'envoient
+      // que text et url. Le titre passe donc aussi dans le message.
+      await navigator.share({ title: recipe.title, text: recipe.title, url });
       return;
     }catch(e){
       // Menu refermé sans rien choisir : rien d'autre à faire.

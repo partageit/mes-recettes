@@ -513,10 +513,15 @@ personne voit la fiche telle qu'elle est publiée, pas les portions choisies sur
 ton téléphone.
 
 Le bouton de partage, juste avant, sert quand la personne n'est pas là : il
-ouvre le menu de partage du téléphone (SMS, messageries, mail…) avec le titre et
-le même lien. Firefox sur ordinateur n'a pas ce menu : le lien est alors copié
-dans le presse-papiers et le bouton affiche « Lien copié ✓ » deux secondes ; si
-même la copie échoue, le lien s'affiche, sélectionné, pour le copier soi-même.
+ouvre le menu de partage du téléphone (SMS, messageries, mail…) avec le même
+lien, précédé du titre de la recette dans le message. Firefox sur ordinateur n'a
+pas ce menu : le lien est alors copié dans le presse-papiers et le bouton
+affiche « Lien copié ✓ » deux secondes ; si même la copie échoue, le lien
+s'affiche, sélectionné, pour le copier soi-même.
+
+L'aperçu qu'une messagerie affiche sous le lien porte en revanche « Recette » :
+elle lit la page sans exécuter son JavaScript, et ne voit donc que le titre fixe
+de `recipe.html`.
 
 Le calcul du QR code vient de [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator)
 (MIT), copié dans `assets/qrcode.js` : le site n'a ni build ni CDN. Pour le
