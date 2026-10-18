@@ -168,6 +168,27 @@
     "updated": "2026-08-31T12:23"
   },
   {
+    "id": "clafoutis-aux-fruits",
+    "type": "recipe",
+    "title": "Clafoutis aux fruits",
+    "description": "Un clafoutis tout simple, à garnir des fruits du moment, des pommes par exemple.",
+    "categories": [
+      "Dessert"
+    ],
+    "servings": "8",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": null,
+    "cook_time": 60,
+    "rest_time": null,
+    "total_time": 60,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [],
+    "created": "2026-10-18T18:48",
+    "updated": "2026-10-18T19:09"
+  },
+  {
     "id": "cookies-epais-beurre-noisette-chocolat-fleur-de-sel",
     "type": "recipe",
     "title": "Cookies épais beurre noisette, chocolat & fleur de sel",
@@ -702,6 +723,27 @@
     "updated": "2026-09-13T10:10"
   },
   {
+    "id": "pop-corn-caramel-croquant-sans-brule",
+    "type": "recipe",
+    "title": "Pop-corn caramel croquant (sans brûlé)",
+    "description": "Le maïs éclate d'abord sans sucre, puis il est enrobé de caramel au beurre salé et séché au four : croquant, bien enrobé, rien qui noircit.",
+    "categories": [
+      "Dessert"
+    ],
+    "servings": "4",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": null,
+    "cook_time": 52,
+    "rest_time": 15,
+    "total_time": 67,
+    "status": "untried",
+    "needs_review": false,
+    "main_ingredients": [],
+    "created": "2026-10-18T18:47",
+    "updated": "2026-10-18T18:47"
+  },
+  {
     "id": "pop-corn-sucre-a-la-poele",
     "type": "recipe",
     "title": "Pop-corn sucré à la poêle",
@@ -1015,6 +1057,27 @@
     ],
     "created": "2026-08-31T12:15",
     "updated": "2026-08-31T12:15"
+  },
+  {
+    "id": "tarte-amandine-aux-pommes",
+    "type": "recipe",
+    "title": "Tarte amandine aux pommes",
+    "description": "Une tarte fondante à la crème d'amande, avec des pommes tranchées en éventail et une touche de miel.",
+    "categories": [
+      "Dessert"
+    ],
+    "servings": "6",
+    "yield_label": "",
+    "mold": "24-26 cm",
+    "prep_time": null,
+    "cook_time": 45,
+    "rest_time": 30,
+    "total_time": 75,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [],
+    "created": "2026-10-18T18:48",
+    "updated": "2026-10-18T18:48"
   },
   {
     "id": "tarte-aux-figues-et-creme-d-amande",
