@@ -11,6 +11,7 @@ cook_time: 35
 rest_time: 30
 status: untried
 main_ingredients: []
+see_also: [pate-sablee-pour-tarte-sucree]
 source_url: 
 created: 2026-10-18T10:49
 updated: 2026-10-18T10:49
