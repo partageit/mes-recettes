@@ -2,7 +2,9 @@
 // au format Markdown + frontmatter. Aucune dépendance externe.
 
 export function slugify(text) {
-  const ascii = (text || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
+  // NFKD ne d\u00e9compose pas les ligatures : sans ce remplacement, \u00ab b\u0153uf \u00bb donnerait \u00ab b-uf \u00bb.
+  const ascii = (text || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/\u0153/g, 'oe').replace(/\u0152/g, 'Oe').replace(/\u00e6/g, 'ae').replace(/\u00c6/g, 'Ae');
   return ascii.replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-+|-+$/g, '').toLowerCase() || 'recette';
 }
 
