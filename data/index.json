@@ -168,6 +168,30 @@
     "updated": "2026-08-31T12:23"
   },
   {
+    "id": "cinnamon-rolls-glacage-au-fromage-fouette",
+    "type": "recipe",
+    "title": "Cinnamon rolls, glaçage au fromage fouetté",
+    "description": "Des roulés moelleux à la cannelle, avec un glaçage qui utilise tout ton pot de Madame Loïk.",
+    "categories": [
+      "Petit-déjeuner",
+      "Goûter"
+    ],
+    "servings": "9",
+    "yield_label": "",
+    "mold": "22-24 cm",
+    "prep_time": null,
+    "cook_time": 23,
+    "rest_time": 145,
+    "total_time": 168,
+    "status": "untried",
+    "needs_review": false,
+    "main_ingredients": [
+      "cannelle"
+    ],
+    "created": "2026-10-30T20:59",
+    "updated": "2026-10-30T21:00"
+  },
+  {
     "id": "clafoutis-aux-fruits",
     "type": "recipe",
     "title": "Clafoutis aux fruits",
