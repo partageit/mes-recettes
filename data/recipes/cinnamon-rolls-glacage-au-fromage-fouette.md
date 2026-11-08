@@ -9,7 +9,7 @@ mold: 22-24 cm
 prep_time: 
 cook_time: 23
 rest_time: 145
-status: untried
+status: favorite
 main_ingredients: [cannelle]
 source_url: 
 created: 2026-10-30T20:59

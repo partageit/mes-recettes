@@ -183,7 +183,7 @@
     "cook_time": 23,
     "rest_time": 145,
     "total_time": 168,
-    "status": "untried",
+    "status": "favorite",
     "needs_review": false,
     "main_ingredients": [
       "cannelle"
@@ -610,6 +610,31 @@
     "main_ingredients": [],
     "created": "2026-08-31T16:15",
     "updated": "2026-08-31T16:16"
+  },
+  {
+    "id": "gratin-poulet-patate-douce-pomme-de-terre",
+    "type": "recipe",
+    "title": "Gratin poulet, patate douce & pomme de terre",
+    "description": "Un gratin crémeux et réconfortant, avec la douceur de la patate douce.",
+    "categories": [
+      "Plat"
+    ],
+    "servings": "4",
+    "yield_label": "",
+    "mold": "",
+    "prep_time": 25,
+    "cook_time": 55,
+    "rest_time": 10,
+    "total_time": 90,
+    "status": "favorite",
+    "needs_review": false,
+    "main_ingredients": [
+      "poulet",
+      "patate douce",
+      "pomme de terre"
+    ],
+    "created": "2026-11-08T18:58",
+    "updated": "2026-11-08T19:00"
   },
   {
     "id": "marinade-epicee-facon-cajun-pour-cotes-de-porc",
